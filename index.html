@@ -90,10 +90,12 @@
         #timer-bar.warning { background: #e94560; }
 
         .buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
             gap: 1.2rem;
-            flex-wrap: wrap;
             justify-content: center;
+            max-width: 420px;
+            margin: 0 auto;
         }
 
         .color-btn {
