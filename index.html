@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stroop Test</title>
+    <title>Waffle</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -122,7 +122,6 @@
         .color-btn[data-color="orange"] { background: #fd7e14; }
         .color-btn[data-color="pink"]   { background: #e83e8c; }
         .color-btn[data-color="purple"] { background: #6f42c1; }
-        .color-btn[data-color="cyan"]   { background: #17a2b8; }
         .color-btn[data-color="brown"]  { background: #795548; }
 
         #end-screen h1 { font-size: 2rem; }
@@ -288,21 +287,69 @@
         .custom-toggles .toggle-row {
             margin-bottom: 1rem;
         }
+
+        .language-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .language-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .language-btn:hover {
+            border-color: #666;
+            color: #fff;
+        }
+
+        .language-btn.selected {
+            border-color: #0f3460;
+            background: #0f3460;
+            color: #fff;
+        }
+
+        .language-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
     </style>
 </head>
 <body>
 
 <div id="start-screen" class="active">
-    <h1>Stroop Test</h1>
-    <p class="instructions">
+    <h1 id="game-title">Waffle</h1>
+    <p class="instructions" id="instructions-text">
         A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>
         Your task: identify the <strong>colour of the text</strong>, not the word itself.
     </p>
+    <div class="language-label" id="language-label">Language</div>
+    <div class="language-selector">
+        <button class="language-btn selected" data-lang="en">English</button>
+        <button class="language-btn" data-lang="cy">Cymraeg</button>
+        <button class="language-btn" data-lang="it">Italiano</button>
+        <button class="language-btn" data-lang="es">Espanol</button>
+        <button class="language-btn" data-lang="fr">Francais</button>
+        <button class="language-btn" data-lang="de">Deutsch</button>
+    </div>
     <div class="difficulty-selector">
-        <button class="difficulty-btn selected" data-difficulty="easy">Easy</button>
-        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-        <button class="difficulty-btn" data-difficulty="custom">Custom</button>
+        <button class="difficulty-btn selected" data-difficulty="easy" data-i18n="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium" data-i18n="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard" data-i18n="hard">Hard</button>
+        <button class="difficulty-btn" data-difficulty="custom" data-i18n="custom">Custom</button>
     </div>
     <div class="difficulty-info" id="difficulty-info">Labels shown, 10s timer, min 2s</div>
     <div class="custom-toggles" id="custom-toggles">
@@ -311,39 +358,39 @@
                 <input type="checkbox" id="show-labels" checked>
                 <span class="toggle-track"></span>
             </label>
-            <span>Show labels on buttons</span>
+            <span id="label-show-labels">Show labels on buttons</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="shuffle-buttons">
                 <span class="toggle-track"></span>
             </label>
-            <span>Shuffle buttons every 10 answers</span>
+            <span id="label-shuffle-buttons">Shuffle buttons every 10 answers</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="shuffle-every-answer">
                 <span class="toggle-track"></span>
             </label>
-            <span>Shuffle every answer</span>
+            <span id="label-shuffle-every">Shuffle every answer</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="no-colour-fill">
                 <span class="toggle-track"></span>
             </label>
-            <span>Remove colour fill from buttons</span>
+            <span id="label-no-fill">Remove colour fill from buttons</span>
         </div>
         <div class="toggle-row">
-            <span>Colours: <span id="colour-count-label">5</span></span>
-            <input type="range" id="colour-count" min="3" max="10" value="5" style="width:120px;margin-left:0.5rem">
+            <span id="label-colours">Colours: <span id="colour-count-label">5</span></span>
+            <input type="range" id="colour-count" min="3" max="9" value="5" style="width:120px;margin-left:0.5rem">
         </div>
     </div>
     <button id="start-btn">Start</button>
 </div>
 
 <div id="game-screen">
-    <div class="prompt-label">What colour is the text?</div>
+    <div class="prompt-label" id="prompt-label">What colour is the text?</div>
     <div id="color-word">RED</div>
     <div id="timer-bar-container">
         <div id="timer-bar"></div>
@@ -358,28 +405,132 @@
 </div>
 
 <div id="pause-overlay">
-    <h2>Level Up!</h2>
+    <h2 id="level-up-text">Level Up!</h2>
     <p id="pause-message"></p>
     <div class="countdown" id="pause-countdown">5</div>
 </div>
 
 <div id="end-screen">
-    <h1>Game Over</h1>
+    <h1 id="game-over-text">Game Over</h1>
     <div id="end-message"></div>
     <div id="final-score">0</div>
-    <div class="prompt-label">streak</div>
+    <div class="prompt-label" id="streak-label">streak</div>
     <div id="avg-response" style="font-size:2.5rem;font-weight:900;color:#0f3460;margin-top:1.5rem">0.0 s</div>
-    <div class="prompt-label" style="margin-bottom:2rem">avg response time</div>
+    <div class="prompt-label" style="margin-bottom:2rem" id="avg-label">avg response time</div>
     <button id="restart-btn">Play Again</button>
 </div>
 
 <script>
-    const ALL_COLORS = ['red', 'green', 'blue', 'grey', 'yellow', 'orange', 'pink', 'purple', 'cyan', 'brown'];
+    const ALL_COLORS = ['red', 'green', 'blue', 'grey', 'yellow', 'orange', 'pink', 'purple', 'brown'];
     const COLOR_CSS = {
         red: '#dc3545', green: '#28a745', blue: '#007bff', grey: '#999', yellow: '#e6c619',
-        orange: '#fd7e14', pink: '#e83e8c', purple: '#6f42c1', cyan: '#17a2b8', brown: '#795548'
+        orange: '#fd7e14', pink: '#e83e8c', purple: '#6f42c1', brown: '#795548'
     };
     let activeColors = ALL_COLORS.slice(0, 5);
+
+    // Language translations for colour names
+    const TRANSLATIONS = {
+        en: {
+            red: 'Red', green: 'Green', blue: 'Blue', grey: 'Grey', yellow: 'Yellow',
+            orange: 'Orange', pink: 'Pink', purple: 'Purple', brown: 'Brown'
+        },
+        cy: {
+            red: 'Coch', green: 'Gwyrdd', blue: 'Glas', grey: 'Llwyd', yellow: 'Melyn',
+            orange: 'Oren', pink: 'Pinc', purple: 'Porffor', brown: 'Brown'
+        },
+        it: {
+            red: 'Rosso', green: 'Verde', blue: 'Blu', grey: 'Grigio', yellow: 'Giallo',
+            orange: 'Arancione', pink: 'Rosa', purple: 'Viola', brown: 'Marrone'
+        },
+        es: {
+            red: 'Rojo', green: 'Verde', blue: 'Azul', grey: 'Gris', yellow: 'Amarillo',
+            orange: 'Naranja', pink: 'Rosa', purple: 'Morado', brown: 'Marron'
+        },
+        fr: {
+            red: 'Rouge', green: 'Vert', blue: 'Bleu', grey: 'Gris', yellow: 'Jaune',
+            orange: 'Orange', pink: 'Rose', purple: 'Violet', brown: 'Brun'
+        },
+        de: {
+            red: 'Rot', green: 'Grun', blue: 'Blau', grey: 'Grau', yellow: 'Gelb',
+            orange: 'Orange', pink: 'Rosa', purple: 'Lila', brown: 'Braun'
+        }
+    };
+
+    // UI translations
+    const UI_TRANSLATIONS = {
+        en: {
+            title: 'Waffle',
+            instructions: 'A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>Your task: identify the <strong>colour of the text</strong>, not the word itself.',
+            language: 'Language',
+            easy: 'Easy', medium: 'Medium', hard: 'Hard', custom: 'Custom',
+            start: 'Start',
+            showLabels: 'Show labels on buttons',
+            shuffleButtons: 'Shuffle buttons every 10 answers',
+            shuffleEvery: 'Shuffle every answer',
+            noFill: 'Remove colour fill from buttons',
+            colours: 'Colours',
+            prompt: 'What colour is the text?',
+            levelUp: 'Level Up!',
+            gameOver: 'Game Over',
+            streak: 'streak',
+            avgResponse: 'avg response time',
+            playAgain: 'Play Again',
+            timeRanOut: 'Time ran out!',
+            answerWas: 'The answer was',
+            niceWork: 'Nice work!',
+            inARow: 'in a row!',
+            timeNow: 'Time per round is now',
+            second: 'second',
+            seconds: 'seconds',
+            buttonsShuffled: 'Buttons shuffled!',
+            easyInfo: 'Labels shown, 10s timer, min 2s',
+            mediumInfo: 'No labels, shuffle every 10, 8s timer',
+            hardInfo: 'No colour fill, shuffle every answer, 6s timer, min 1s',
+            customInfo: 'Configure your own settings'
+        },
+        cy: {
+            title: 'Waffle',
+            instructions: 'Bydd gair lliw yn ymddangos ar y sgrin, ond mewn <strong>lliw gwahanol</strong>.<br><br>Eich tasg: adnabod <strong>lliw\'r testun</strong>, nid y gair ei hun.',
+            language: 'Iaith',
+            easy: 'Hawdd', medium: 'Canolig', hard: 'Anodd', custom: 'Arferol',
+            start: 'Dechrau',
+            showLabels: 'Dangos labeli ar fotymau',
+            shuffleButtons: 'Cymysgu botymau bob 10 ateb',
+            shuffleEvery: 'Cymysgu bob ateb',
+            noFill: 'Tynnu lliw o fotymau',
+            colours: 'Lliwiau',
+            prompt: 'Pa liw yw\'r testun?',
+            levelUp: 'Lefel Lan!',
+            gameOver: 'Gêm Drosodd',
+            streak: 'rhediad',
+            avgResponse: 'amser ymateb cyfartalog',
+            playAgain: 'Chwarae Eto',
+            timeRanOut: 'Amser wedi rhedeg allan!',
+            answerWas: 'Yr ateb oedd',
+            niceWork: 'Da iawn!',
+            inARow: 'yn olynol!',
+            timeNow: 'Amser y rownd nawr yw',
+            second: 'eiliad',
+            seconds: 'eiliad',
+            buttonsShuffled: 'Botymau wedi cymysgu!',
+            easyInfo: 'Labeli, 10e amserydd, min 2e',
+            mediumInfo: 'Dim labeli, cymysgu bob 10, 8e amserydd',
+            hardInfo: 'Dim lliw, cymysgu bob ateb, 6e amserydd, min 1e',
+            customInfo: 'Ffurfweddwch eich gosodiadau'
+        }
+    };
+
+    // Speech recognition language codes
+    const SPEECH_LANG_CODES = {
+        en: 'en-GB',
+        cy: 'cy-GB',
+        it: 'it-IT',
+        es: 'es-ES',
+        fr: 'fr-FR',
+        de: 'de-DE'
+    };
+
+    let selectedLanguage = localStorage.getItem('stroopLanguage') || 'en';
 
     const DIFFICULTY_PRESETS = {
         easy: {
@@ -443,6 +594,7 @@
     const difficultyBtns = document.querySelectorAll('.difficulty-btn');
     const difficultyInfo = document.getElementById('difficulty-info');
     const customToggles = document.getElementById('custom-toggles');
+    const languageBtns = document.querySelectorAll('.language-btn');
 
     document.getElementById('start-btn').addEventListener('click', startGame);
     document.getElementById('restart-btn').addEventListener('click', () => show(startScreen));
@@ -466,11 +618,79 @@
 
     // Colour count slider
     const colourCountSlider = document.getElementById('colour-count');
-    const colourCountLabel = document.getElementById('colour-count-label');
     colourCountSlider.addEventListener('input', () => {
         colourCount = parseInt(colourCountSlider.value);
-        colourCountLabel.textContent = colourCount;
+        const label = document.getElementById('colour-count-label');
+        if (label) label.textContent = colourCount;
     });
+
+    // Language selection
+    languageBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            languageBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedLanguage = btn.dataset.lang;
+            localStorage.setItem('stroopLanguage', selectedLanguage);
+            applyUITranslations();
+        });
+    });
+
+    // Get UI text for current language (falls back to English)
+    function getUIText(key) {
+        const lang = UI_TRANSLATIONS[selectedLanguage] ? selectedLanguage : 'en';
+        return UI_TRANSLATIONS[lang][key] || UI_TRANSLATIONS.en[key];
+    }
+
+    // Apply UI translations to the page
+    function applyUITranslations() {
+        document.getElementById('game-title').textContent = getUIText('title');
+        document.getElementById('instructions-text').innerHTML = getUIText('instructions');
+        document.getElementById('language-label').textContent = getUIText('language');
+        document.getElementById('start-btn').textContent = getUIText('start');
+        document.getElementById('label-show-labels').textContent = getUIText('showLabels');
+        document.getElementById('label-shuffle-buttons').textContent = getUIText('shuffleButtons');
+        document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
+        document.getElementById('label-no-fill').textContent = getUIText('noFill');
+        document.getElementById('label-colours').innerHTML = getUIText('colours') + ': <span id="colour-count-label">' + colourCount + '</span>';
+        document.getElementById('prompt-label').textContent = getUIText('prompt');
+        document.getElementById('level-up-text').textContent = getUIText('levelUp');
+        document.getElementById('game-over-text').textContent = getUIText('gameOver');
+        document.getElementById('streak-label').textContent = getUIText('streak');
+        document.getElementById('avg-label').textContent = getUIText('avgResponse');
+        document.getElementById('restart-btn').textContent = getUIText('playAgain');
+
+        // Update difficulty buttons
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            const key = btn.dataset.difficulty;
+            btn.textContent = getUIText(key);
+        });
+
+        // Update difficulty info if not custom
+        if (selectedDifficulty !== 'custom') {
+            difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
+        } else {
+            difficultyInfo.textContent = getUIText('customInfo');
+        }
+    }
+
+    // Restore saved language on page load
+    function initLanguageSelection() {
+        languageBtns.forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.lang === selectedLanguage);
+        });
+        applyUITranslations();
+    }
+    initLanguageSelection();
+
+    // Get translated colour name
+    function getTranslatedColour(color) {
+        return TRANSLATIONS[selectedLanguage][color] || TRANSLATIONS.en[color];
+    }
+
+    // Get speech recognition language code
+    function getSpeechLangCode() {
+        return SPEECH_LANG_CODES[selectedLanguage] || 'en-GB';
+    }
 
     difficultyBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -480,10 +700,10 @@
 
             if (selectedDifficulty === 'custom') {
                 customToggles.classList.add('visible');
-                difficultyInfo.textContent = 'Configure your own settings';
+                difficultyInfo.textContent = getUIText('customInfo');
             } else {
                 customToggles.classList.remove('visible');
-                difficultyInfo.textContent = DIFFICULTY_PRESETS[selectedDifficulty].info;
+                difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
             }
         });
     });
@@ -531,7 +751,7 @@
             const btn = document.createElement('button');
             btn.className = 'color-btn';
             btn.dataset.color = color;
-            btn.textContent = color.charAt(0).toUpperCase() + color.slice(1);
+            btn.textContent = getTranslatedColour(color);
             btn.addEventListener('click', () => handleAnswer(color));
             if (!showLabels) btn.classList.add('no-label');
             if (noColourFill) btn.classList.add('no-fill');
@@ -549,7 +769,7 @@
         currentFillColor = pickRandomColor(word);
         wordIndex++;
 
-        colorWord.textContent = word.toUpperCase();
+        colorWord.textContent = getTranslatedColour(word).toUpperCase();
         colorWord.style.color = COLOR_CSS[currentFillColor];
 
         timerBar.style.transition = 'none';
@@ -570,7 +790,7 @@
             if (elapsed < timeLimit) timerRAF = requestAnimationFrame(tick);
         });
 
-        timeout = setTimeout(() => endGame('Time ran out!'), timeLimit);
+        timeout = setTimeout(() => endGame(getUIText('timeRanOut')), timeLimit);
     }
 
     function handleAnswer(chosen) {
@@ -591,7 +811,7 @@
                 nextRound();
             }
         } else {
-            endGame(`The answer was ${currentFillColor.toUpperCase()}.`);
+            endGame(`${getUIText('answerWas')} ${getTranslatedColour(currentFillColor).toUpperCase()}.`);
         }
     }
 
@@ -600,12 +820,13 @@
         const newLimit = canReduceTime ? Math.max(timeLimit - 1000, minTimeLimit) : timeLimit;
         const newSeconds = newLimit / 1000;
 
-        let msg = `Nice work! ${streak} in a row!`;
+        let msg = `${getUIText('niceWork')} ${streak} ${getUIText('inARow')}`;
         if (canReduceTime) {
-            msg += ` Time per round is now ${newSeconds} second${newSeconds !== 1 ? 's' : ''}.`;
+            const secWord = newSeconds !== 1 ? getUIText('seconds') : getUIText('second');
+            msg += ` ${getUIText('timeNow')} ${newSeconds} ${secWord}.`;
         }
         if (shuffleEnabled) {
-            msg += ' Buttons shuffled!';
+            msg += ' ' + getUIText('buttonsShuffled');
         }
         pauseMessage.textContent = msg;
         pauseCountdown.textContent = '5';
