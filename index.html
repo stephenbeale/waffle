@@ -385,6 +385,14 @@
             <span id="label-colours">Colours: <span id="colour-count-label">5</span></span>
             <input type="range" id="colour-count" min="3" max="9" value="5" style="width:120px;margin-left:0.5rem">
         </div>
+        <div class="toggle-row">
+            <span id="label-time">Time: <span id="time-limit-label">10</span>s</span>
+            <input type="range" id="time-limit-slider" min="3" max="15" value="10" style="width:120px;margin-left:0.5rem">
+        </div>
+        <div class="toggle-row">
+            <span id="label-min-time">Min time: <span id="min-time-label">2</span>s</span>
+            <input type="range" id="min-time-slider" min="1" max="5" value="2" style="width:120px;margin-left:0.5rem">
+        </div>
     </div>
     <button id="start-btn">Start</button>
 </div>
@@ -469,6 +477,8 @@
             shuffleEvery: 'Shuffle every answer',
             noFill: 'Remove colour fill from buttons',
             colours: 'Colours',
+            time: 'Time',
+            minTime: 'Min time',
             prompt: 'What colour is the text?',
             levelUp: 'Level Up!',
             gameOver: 'Game Over',
@@ -499,6 +509,8 @@
             shuffleEvery: 'Cymysgu bob ateb',
             noFill: 'Tynnu lliw o fotymau',
             colours: 'Lliwiau',
+            time: 'Amser',
+            minTime: 'Amser lleiaf',
             prompt: 'Pa liw yw\'r testun?',
             levelUp: 'Lefel Lan!',
             gameOver: 'Gêm Drosodd',
@@ -578,6 +590,8 @@
     let responseTimes = [];
     let selectedDifficulty = 'easy';
     let colourCount = 5;
+    let customTimeLimit = 10;
+    let customMinTime = 2;
 
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
@@ -624,6 +638,27 @@
         if (label) label.textContent = colourCount;
     });
 
+    // Time limit slider
+    const timeLimitSlider = document.getElementById('time-limit-slider');
+    const minTimeSlider = document.getElementById('min-time-slider');
+
+    timeLimitSlider.addEventListener('input', () => {
+        customTimeLimit = parseInt(timeLimitSlider.value);
+        document.getElementById('time-limit-label').textContent = customTimeLimit;
+        // Ensure min time doesn't exceed time limit
+        if (customMinTime > customTimeLimit) {
+            customMinTime = customTimeLimit;
+            minTimeSlider.value = customMinTime;
+            document.getElementById('min-time-label').textContent = customMinTime;
+        }
+        minTimeSlider.max = customTimeLimit;
+    });
+
+    minTimeSlider.addEventListener('input', () => {
+        customMinTime = parseInt(minTimeSlider.value);
+        document.getElementById('min-time-label').textContent = customMinTime;
+    });
+
     // Language selection
     languageBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -652,6 +687,8 @@
         document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
         document.getElementById('label-no-fill').textContent = getUIText('noFill');
         document.getElementById('label-colours').innerHTML = getUIText('colours') + ': <span id="colour-count-label">' + colourCount + '</span>';
+        document.getElementById('label-time').innerHTML = getUIText('time') + ': <span id="time-limit-label">' + customTimeLimit + '</span>s';
+        document.getElementById('label-min-time').innerHTML = getUIText('minTime') + ': <span id="min-time-label">' + customMinTime + '</span>s';
         document.getElementById('prompt-label').textContent = getUIText('prompt');
         document.getElementById('level-up-text').textContent = getUIText('levelUp');
         document.getElementById('game-over-text').textContent = getUIText('gameOver');
@@ -724,8 +761,8 @@
             shuffleEveryAnswer = document.getElementById('shuffle-every-answer').checked;
             noColourFill = document.getElementById('no-colour-fill').checked;
             colourCount = parseInt(document.getElementById('colour-count').value);
-            timeLimit = 10000;
-            minTimeLimit = 2000;
+            timeLimit = customTimeLimit * 1000;
+            minTimeLimit = customMinTime * 1000;
         } else {
             const preset = DIFFICULTY_PRESETS[selectedDifficulty];
             showLabels = preset.showLabels;
