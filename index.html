@@ -416,6 +416,83 @@
         }
 
         .voice-feedback.active { display: block; }
+
+        .name-input-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .name-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        #player-name {
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background: transparent;
+            color: #fff;
+            text-align: center;
+            width: 200px;
+            transition: border-color 0.2s;
+        }
+
+        #player-name:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        #player-name::placeholder {
+            color: #666;
+        }
+
+        .personal-best-display {
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .personal-best-display.hidden {
+            display: none;
+        }
+
+        .personal-best-display.new-record {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+        }
+
+        .personal-best-display.goal {
+            background: rgba(15, 52, 96, 0.3);
+            border: 2px solid #0f3460;
+        }
+
+        .personal-best-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .personal-best-display.new-record .personal-best-title {
+            color: #28a745;
+        }
+
+        .personal-best-display.goal .personal-best-title {
+            color: #0f3460;
+        }
+
+        .personal-best-value {
+            font-size: 0.95rem;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -426,6 +503,10 @@
         A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>
         Your task: identify the <strong>colour of the text</strong>, not the word itself.
     </p>
+    <div class="name-input-row">
+        <label class="name-label" id="name-label" for="player-name">Your Name</label>
+        <input type="text" id="player-name" maxlength="20" placeholder="Enter name...">
+    </div>
     <div class="language-label" id="language-label">Language</div>
     <div class="language-selector">
         <button class="language-btn selected" data-lang="en">English</button>
@@ -527,8 +608,14 @@
     <div id="final-score">0</div>
     <div class="prompt-label" id="streak-label">streak</div>
     <div id="avg-response" style="font-size:2.5rem;font-weight:900;color:#0f3460;margin-top:1.5rem">0.0 s</div>
-    <div class="prompt-label" style="margin-bottom:2rem" id="avg-label">avg response time</div>
-    <button id="restart-btn">Play Again</button>
+    <div class="prompt-label" style="margin-bottom:1rem" id="avg-label">avg response time</div>
+    <div class="personal-best-display hidden" id="personal-best-display">
+        <div class="personal-best-title" id="personal-best-title"></div>
+        <div class="personal-best-value" id="personal-best-value"></div>
+    </div>
+    <div style="margin-top:1.5rem">
+        <button id="restart-btn">Play Again</button>
+    </div>
 </div>
 
 <script>
@@ -675,7 +762,12 @@
             listening: 'Listening...',
             noSpeech: 'No speech detected...',
             micBlocked: 'Microphone blocked',
-            heard: 'Heard'
+            heard: 'Heard',
+            yourName: 'Your Name',
+            enterName: 'Enter name...',
+            newPersonalBest: 'New Personal Best!',
+            yourGoal: 'Your goal',
+            previousBest: 'Previous best'
         },
         cy: {
             title: 'Waffle',
@@ -713,7 +805,12 @@
             listening: 'Gwrando...',
             noSpeech: 'Dim lleferydd...',
             micBlocked: 'Meicroffon wedi\'i rwystro',
-            heard: 'Clywyd'
+            heard: 'Clywyd',
+            yourName: 'Eich Enw',
+            enterName: 'Rhowch enw...',
+            newPersonalBest: 'Record Personol Newydd!',
+            yourGoal: 'Eich nod',
+            previousBest: 'Gorau blaenorol'
         },
         es: {
             title: 'Waffle',
@@ -751,7 +848,12 @@
             listening: 'Escuchando...',
             noSpeech: 'No se detectó voz...',
             micBlocked: 'Micrófono bloqueado',
-            heard: 'Escuchado'
+            heard: 'Escuchado',
+            yourName: 'Tu Nombre',
+            enterName: 'Ingresa nombre...',
+            newPersonalBest: 'Nuevo Récord Personal!',
+            yourGoal: 'Tu meta',
+            previousBest: 'Mejor anterior'
         }
     };
 
@@ -818,6 +920,10 @@
     let colourCount = 5;
     let customTimeLimit = 10;
     let customMinTime = 2;
+
+    // Leaderboard variables
+    let playerName = localStorage.getItem('wafflePlayerName') || '';
+    let leaderboardData = {};
 
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
@@ -1025,6 +1131,8 @@
     function applyUITranslations() {
         document.getElementById('game-title').textContent = getUIText('title');
         document.getElementById('instructions-text').innerHTML = getUIText('instructions');
+        document.getElementById('name-label').textContent = getUIText('yourName');
+        document.getElementById('player-name').placeholder = getUIText('enterName');
         document.getElementById('language-label').textContent = getUIText('language');
         document.getElementById('start-btn').textContent = getUIText('start');
         document.getElementById('label-voice-mode').textContent = getUIText('voiceMode');
@@ -1259,6 +1367,87 @@
         btns.forEach(btn => buttonsContainer.appendChild(btn));
     }
 
+    // Leaderboard functions
+    function loadLeaderboardData() {
+        try {
+            const data = localStorage.getItem('waffleLeaderboard');
+            leaderboardData = data ? JSON.parse(data) : {};
+        } catch (e) {
+            leaderboardData = {};
+        }
+    }
+
+    function saveLeaderboardData() {
+        try {
+            localStorage.setItem('waffleLeaderboard', JSON.stringify(leaderboardData));
+        } catch (e) {
+            console.log('Could not save leaderboard data:', e);
+        }
+    }
+
+    function getPersonalBest(name, difficulty) {
+        if (!leaderboardData[name]) return null;
+        return leaderboardData[name][difficulty] || null;
+    }
+
+    function savePersonalBest(name, difficulty, score, avgTime) {
+        if (!leaderboardData[name]) {
+            leaderboardData[name] = {};
+        }
+        leaderboardData[name][difficulty] = {
+            score: score,
+            avgTime: avgTime,
+            date: new Date().toISOString().split('T')[0]
+        };
+        saveLeaderboardData();
+    }
+
+    function checkAndDisplayPersonalBest(currentScore, avgTime) {
+        const displayEl = document.getElementById('personal-best-display');
+        const titleEl = document.getElementById('personal-best-title');
+        const valueEl = document.getElementById('personal-best-value');
+
+        // If no player name, hide the display
+        if (!playerName.trim()) {
+            displayEl.classList.add('hidden');
+            return;
+        }
+
+        const previousBest = getPersonalBest(playerName, selectedDifficulty);
+        const isNewRecord = !previousBest || currentScore > previousBest.score;
+
+        displayEl.classList.remove('hidden', 'new-record', 'goal');
+
+        if (isNewRecord) {
+            // New personal best!
+            displayEl.classList.add('new-record');
+            titleEl.textContent = getUIText('newPersonalBest');
+            if (previousBest) {
+                valueEl.textContent = `${getUIText('previousBest')}: ${previousBest.score}`;
+            } else {
+                valueEl.textContent = '';
+            }
+            // Save the new record
+            savePersonalBest(playerName, selectedDifficulty, currentScore, avgTime);
+        } else {
+            // Show goal to beat
+            displayEl.classList.add('goal');
+            titleEl.textContent = `${getUIText('yourGoal')}: ${previousBest.score}`;
+            valueEl.textContent = `${getUIText('previousBest')}: ${previousBest.score} (${previousBest.avgTime}s avg)`;
+        }
+    }
+
+    // Initialize leaderboard data
+    loadLeaderboardData();
+
+    // Initialize player name input
+    const playerNameInput = document.getElementById('player-name');
+    playerNameInput.value = playerName;
+    playerNameInput.addEventListener('input', () => {
+        playerName = playerNameInput.value.trim();
+        localStorage.setItem('wafflePlayerName', playerName);
+    });
+
     function endGame(reason) {
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
@@ -1268,12 +1457,17 @@
             stopListening();
         }
 
+        document.getElementById('game-over-text').textContent = getUIText('gameOver');
         endMessage.textContent = reason;
         finalScore.textContent = streak;
         const avg = responseTimes.length > 0
             ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
             : '0.0';
         document.getElementById('avg-response').textContent = avg + ' s';
+
+        // Check and display personal best
+        checkAndDisplayPersonalBest(streak, avg);
+
         show(endScreen);
     }
 </script>

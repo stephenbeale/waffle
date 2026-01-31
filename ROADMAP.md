@@ -68,7 +68,7 @@ Add a toggle or dropdown to switch the game language. Colour words and button la
 
 Add a fractional time reduction after user hits the minimum time limit - reduce down by 0.2 seconds each 10 correct answers, making it eventually impossible. At 0.2 seconds, after 10, tell the user they win - only way to improve is by improving response time.
 
-## Feature 8: Leaderboard
+## Feature 8: Leaderboard ✅
 
 Ask user to input their name for leaderboard, to compete against themselves at this point. Tell them if they performed a personal best after subsequent runs, or what their goal is if not.
 
