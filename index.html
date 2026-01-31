@@ -153,7 +153,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             color: #aaa;
             font-size: 1rem;
         }
@@ -328,6 +328,94 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
+
+        .audio-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(233, 69, 96, 0.2);
+            border-radius: 8px;
+            color: #e94560;
+            font-size: 0.9rem;
+        }
+
+        .audio-indicator.active { display: flex; }
+
+        .mic-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+
+        .mic-icon::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            background: currentColor;
+            border-radius: 5px;
+            left: 5px;
+            top: 0;
+        }
+
+        .mic-icon::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 8px;
+            border: 2px solid currentColor;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            left: 2px;
+            top: 10px;
+        }
+
+        .mic-icon.listening {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .mic-icon.listening {
+                animation: none;
+            }
+        }
+
+        .audio-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        .audio-warning {
+            display: none;
+            color: #ff9800;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .audio-warning.visible { display: block; }
+
+        .voice-feedback {
+            display: none;
+            color: #666;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            min-height: 1.5em;
+        }
+
+        .voice-feedback.active { display: block; }
     </style>
 </head>
 <body>
@@ -354,6 +442,14 @@
         <button class="difficulty-btn" data-difficulty="custom" data-i18n="custom">Custom</button>
     </div>
     <div class="difficulty-info" id="difficulty-info">Labels shown, 10s timer, min 2s</div>
+    <div class="audio-toggle-row">
+        <label class="toggle">
+            <input type="checkbox" id="voice-mode">
+            <span class="toggle-track"></span>
+        </label>
+        <span id="label-voice-mode">Voice input mode (say the colour)</span>
+    </div>
+    <div class="audio-warning" id="audio-warning">Voice input requires Chrome or Edge browser and microphone permission.</div>
     <div class="custom-toggles" id="custom-toggles">
         <div class="toggle-row">
             <label class="toggle">
@@ -400,8 +496,13 @@
 </div>
 
 <div id="game-screen">
+    <div class="audio-indicator" id="audio-indicator">
+        <div class="mic-icon" id="mic-icon"></div>
+        <span id="audio-status" aria-live="polite" aria-atomic="true">Listening...</span>
+    </div>
     <div class="prompt-label" id="prompt-label">What colour is the text?</div>
     <div id="color-word">RED</div>
+    <div class="voice-feedback" id="voice-feedback" aria-live="polite" aria-atomic="true"></div>
     <div id="timer-bar-container">
         <div id="timer-bar"></div>
     </div>
@@ -466,6 +567,76 @@
         }
     };
 
+    // Aliases for voice recognition to handle accents and pronunciation variations
+    const COLOR_ALIASES = {
+        en: {
+            red: ['red', 'read', 'rad', 'rid', 'bread'],
+            green: ['green', 'grin', 'grain', 'greed'],
+            blue: ['blue', 'blew', 'blow', 'boo'],
+            grey: ['grey', 'gray', 'great', 'grade', 'grape'],
+            yellow: ['yellow', 'yell', 'yeller', 'jello', 'hello'],
+            orange: ['orange', 'oranges'],
+            pink: ['pink', 'ping', 'pint'],
+            purple: ['purple', 'purples'],
+            brown: ['brown', 'brow', 'brownie']
+        },
+        cy: {
+            red: ['coch', 'goch'],
+            green: ['gwyrdd', 'wyrdd'],
+            blue: ['glas', 'las'],
+            grey: ['llwyd', 'lwyd'],
+            yellow: ['melyn', 'felyn'],
+            orange: ['oren'],
+            pink: ['pinc'],
+            purple: ['porffor'],
+            brown: ['brown']
+        },
+        it: {
+            red: ['rosso'],
+            green: ['verde'],
+            blue: ['blu'],
+            grey: ['grigio'],
+            yellow: ['giallo'],
+            orange: ['arancione'],
+            pink: ['rosa'],
+            purple: ['viola'],
+            brown: ['marrone']
+        },
+        es: {
+            red: ['rojo'],
+            green: ['verde'],
+            blue: ['azul'],
+            grey: ['gris'],
+            yellow: ['amarillo'],
+            orange: ['naranja'],
+            pink: ['rosa'],
+            purple: ['morado'],
+            brown: ['marron']
+        },
+        fr: {
+            red: ['rouge'],
+            green: ['vert', 'verte'],
+            blue: ['bleu', 'bleue'],
+            grey: ['gris', 'grise'],
+            yellow: ['jaune'],
+            orange: ['orange'],
+            pink: ['rose'],
+            purple: ['violet', 'violette'],
+            brown: ['brun', 'brune']
+        },
+        de: {
+            red: ['rot', 'rote'],
+            green: ['grun', 'grune'],
+            blue: ['blau', 'blaue'],
+            grey: ['grau', 'graue'],
+            yellow: ['gelb', 'gelbe'],
+            orange: ['orange'],
+            pink: ['rosa'],
+            purple: ['lila'],
+            brown: ['braun', 'braune']
+        }
+    };
+
     // UI translations
     const UI_TRANSLATIONS = {
         en: {
@@ -474,6 +645,8 @@
             language: 'Language',
             easy: 'Easy', medium: 'Medium', hard: 'Hard', custom: 'Custom',
             start: 'Start',
+            voiceMode: 'Voice input mode (say the colour)',
+            voiceWarning: 'Voice input requires Chrome or Edge browser and microphone permission.',
             showLabels: 'Show labels on buttons',
             shuffleButtons: 'Shuffle buttons every 10 answers',
             shuffleEvery: 'Shuffle every answer',
@@ -498,7 +671,11 @@
             easyInfo: 'Labels shown, 10s timer, min 2s',
             mediumInfo: 'No labels, shuffle every 10, 8s timer',
             hardInfo: 'No colour fill, shuffle every answer, 6s timer, min 1s',
-            customInfo: 'Configure your own settings'
+            customInfo: 'Configure your own settings',
+            listening: 'Listening...',
+            noSpeech: 'No speech detected...',
+            micBlocked: 'Microphone blocked',
+            heard: 'Heard'
         },
         cy: {
             title: 'Waffle',
@@ -506,6 +683,8 @@
             language: 'Iaith',
             easy: 'Hawdd', medium: 'Canolig', hard: 'Anodd', custom: 'Arferol',
             start: 'Dechrau',
+            voiceMode: 'Modd llais (dywedwch y lliw)',
+            voiceWarning: 'Mae angen Chrome neu Edge a chaniatâd meicroffon.',
             showLabels: 'Dangos labeli ar fotymau',
             shuffleButtons: 'Cymysgu botymau bob 10 ateb',
             shuffleEvery: 'Cymysgu bob ateb',
@@ -530,7 +709,11 @@
             easyInfo: 'Labeli, 10e amserydd, min 2e',
             mediumInfo: 'Dim labeli, cymysgu bob 10, 8e amserydd',
             hardInfo: 'Dim lliw, cymysgu bob ateb, 6e amserydd, min 1e',
-            customInfo: 'Ffurfweddwch eich gosodiadau'
+            customInfo: 'Ffurfweddwch eich gosodiadau',
+            listening: 'Gwrando...',
+            noSpeech: 'Dim lleferydd...',
+            micBlocked: 'Meicroffon wedi\'i rwystro',
+            heard: 'Clywyd'
         },
         es: {
             title: 'Waffle',
@@ -538,11 +721,15 @@
             language: 'Idioma',
             easy: 'Fácil', medium: 'Medio', hard: 'Difícil', custom: 'Personalizado',
             start: 'Empezar',
+            voiceMode: 'Modo de voz (di el color)',
+            voiceWarning: 'El modo de voz requiere Chrome o Edge y permiso de micrófono.',
             showLabels: 'Mostrar etiquetas en botones',
             shuffleButtons: 'Mezclar botones cada 10 respuestas',
             shuffleEvery: 'Mezclar en cada respuesta',
             noFill: 'Quitar color de fondo de botones',
             colours: 'Colores',
+            time: 'Tiempo',
+            minTime: 'Tiempo mín',
             prompt: '¿De qué color es el texto?',
             levelUp: '¡Subiste de nivel!',
             gameOver: 'Fin del juego',
@@ -560,7 +747,11 @@
             easyInfo: 'Etiquetas, 10s temporizador, mín 2s',
             mediumInfo: 'Sin etiquetas, mezclar cada 10, 8s temporizador',
             hardInfo: 'Sin color, mezclar cada respuesta, 6s temporizador, mín 1s',
-            customInfo: 'Configura tus propios ajustes'
+            customInfo: 'Configura tus propios ajustes',
+            listening: 'Escuchando...',
+            noSpeech: 'No se detectó voz...',
+            micBlocked: 'Micrófono bloqueado',
+            heard: 'Escuchado'
         }
     };
 
@@ -574,6 +765,12 @@
         de: 'de-DE'
     };
 
+    // Web Speech Recognition setup
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let voiceModeEnabled = false;
+    let isListening = false;
+
     let selectedLanguage = localStorage.getItem('stroopLanguage') || 'en';
 
     const DIFFICULTY_PRESETS = {
@@ -583,8 +780,7 @@
             shuffleEveryAnswer: false,
             noColourFill: false,
             initialTime: 10000,
-            minTime: 2000,
-            info: 'Labels shown, 10s timer, min 2s'
+            minTime: 2000
         },
         medium: {
             showLabels: false,
@@ -592,8 +788,7 @@
             shuffleEveryAnswer: false,
             noColourFill: false,
             initialTime: 8000,
-            minTime: 2000,
-            info: 'No labels, shuffle every 10, 8s timer'
+            minTime: 2000
         },
         hard: {
             showLabels: true,
@@ -601,8 +796,7 @@
             shuffleEveryAnswer: true,
             noColourFill: true,
             initialTime: 6000,
-            minTime: 1000,
-            info: 'No colour fill, shuffle every answer, 6s timer, min 1s'
+            minTime: 1000
         }
     };
 
@@ -641,10 +835,129 @@
     const difficultyInfo = document.getElementById('difficulty-info');
     const customToggles = document.getElementById('custom-toggles');
     const languageBtns = document.querySelectorAll('.language-btn');
+    const voiceModeToggle = document.getElementById('voice-mode');
+    const audioWarning = document.getElementById('audio-warning');
+    const audioIndicator = document.getElementById('audio-indicator');
+    const micIcon = document.getElementById('mic-icon');
+    const audioStatus = document.getElementById('audio-status');
+    const voiceFeedback = document.getElementById('voice-feedback');
+
+    // Check for Web Speech API support
+    const speechSupported = !!SpeechRecognition;
+    if (!speechSupported) {
+        voiceModeToggle.disabled = true;
+        voiceModeToggle.closest('.audio-toggle-row').style.opacity = '0.5';
+        audioWarning.classList.add('visible');
+    }
+
+    voiceModeToggle.addEventListener('change', () => {
+        voiceModeEnabled = voiceModeToggle.checked;
+        if (voiceModeEnabled && !speechSupported) {
+            voiceModeToggle.checked = false;
+            voiceModeEnabled = false;
+            audioWarning.classList.add('visible');
+        }
+    });
 
     document.getElementById('start-btn').addEventListener('click', startGame);
-    document.getElementById('restart-btn').addEventListener('click', () => show(startScreen));
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        // Reset buttons visibility for next game
+        buttonsContainer.style.display = 'grid';
+        show(startScreen);
+    });
     buttons.forEach(btn => btn.addEventListener('click', () => handleAnswer(btn.dataset.color)));
+
+    // Initialize speech recognition
+    function initSpeechRecognition() {
+        if (!speechSupported) return null;
+
+        const recog = new SpeechRecognition();
+        recog.continuous = true;
+        recog.interimResults = true;
+        recog.lang = getSpeechLangCode();
+
+        recog.onresult = (event) => {
+            const result = event.results[event.results.length - 1];
+            const transcript = result[0].transcript.toLowerCase().trim();
+            const lastWord = transcript.split(' ').pop();
+
+            // Show what was heard
+            voiceFeedback.textContent = `${getUIText('heard')}: "${lastWord}"`;
+
+            // Check if final result
+            if (result.isFinal) {
+                const matchedColor = matchColorFromSpeech(lastWord);
+                if (matchedColor) {
+                    handleAnswer(matchedColor);
+                }
+            }
+        };
+
+        recog.onerror = (event) => {
+            console.log('Speech recognition error:', event.error);
+            if (event.error === 'no-speech') {
+                audioStatus.textContent = getUIText('noSpeech');
+            } else if (event.error === 'not-allowed') {
+                audioStatus.textContent = getUIText('micBlocked');
+                stopListening();
+            }
+        };
+
+        recog.onend = () => {
+            isListening = false;
+            // Restart if still in voice mode and game is active
+            if (voiceModeEnabled && gameScreen.classList.contains('active') && !pauseOverlay.classList.contains('active')) {
+                setTimeout(() => {
+                    if (voiceModeEnabled && gameScreen.classList.contains('active') && !isListening) {
+                        startListening();
+                    }
+                }, 100);
+            }
+        };
+
+        return recog;
+    }
+
+    function matchColorFromSpeech(word) {
+        const normalized = word.toLowerCase().replace(/[^a-z]/g, '');
+        if (normalized.length < 2) return null;
+
+        const aliases = COLOR_ALIASES[selectedLanguage] || COLOR_ALIASES.en;
+        for (const [color, colorAliases] of Object.entries(aliases)) {
+            if (activeColors.includes(color) && colorAliases.includes(normalized)) {
+                return color;
+            }
+        }
+        return null;
+    }
+
+    function startListening() {
+        if (!recognition || isListening) return;
+        try {
+            recognition.start();
+            isListening = true;
+            audioIndicator.classList.add('active');
+            micIcon.classList.add('listening');
+            audioStatus.textContent = getUIText('listening');
+            voiceFeedback.classList.add('active');
+            voiceFeedback.textContent = '';
+        } catch (e) {
+            console.log('Speech recognition start error:', e);
+        }
+    }
+
+    function stopListening() {
+        if (!recognition) return;
+        try {
+            recognition.stop();
+        } catch (e) {
+            // ignore
+        }
+        isListening = false;
+        audioIndicator.classList.remove('active');
+        micIcon.classList.remove('listening');
+        voiceFeedback.classList.remove('active');
+    }
 
     // Force labels on when no-colour-fill is enabled (otherwise game is impossible)
     const noColourFillCheckbox = document.getElementById('no-colour-fill');
@@ -714,6 +1027,8 @@
         document.getElementById('instructions-text').innerHTML = getUIText('instructions');
         document.getElementById('language-label').textContent = getUIText('language');
         document.getElementById('start-btn').textContent = getUIText('start');
+        document.getElementById('label-voice-mode').textContent = getUIText('voiceMode');
+        document.getElementById('audio-warning').textContent = getUIText('voiceWarning');
         document.getElementById('label-show-labels').textContent = getUIText('showLabels');
         document.getElementById('label-shuffle-buttons').textContent = getUIText('shuffleButtons');
         document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
@@ -810,6 +1125,15 @@
         activeColors = ALL_COLORS.slice(0, colourCount);
         generateButtons();
 
+        // Hide buttons in voice mode
+        buttonsContainer.style.display = voiceModeEnabled ? 'none' : 'grid';
+
+        // Initialize and start speech recognition if voice mode enabled
+        if (voiceModeEnabled && speechSupported) {
+            recognition = initSpeechRecognition();
+            startListening();
+        }
+
         show(gameScreen);
         nextRound();
     }
@@ -885,6 +1209,11 @@
     }
 
     function showPause() {
+        // Pause voice recognition during countdown
+        if (voiceModeEnabled) {
+            stopListening();
+        }
+
         const canReduceTime = timeLimit > minTimeLimit;
         const newLimit = canReduceTime ? Math.max(timeLimit - 1000, minTimeLimit) : timeLimit;
         const newSeconds = newLimit / 1000;
@@ -911,6 +1240,11 @@
                 pauseOverlay.classList.remove('active');
                 timeLimit = newLimit;
                 if (shuffleEnabled) shuffleButtonOrder();
+
+                // Resume voice recognition
+                if (voiceModeEnabled) {
+                    startListening();
+                }
                 nextRound();
             }
         }, 1000);
@@ -928,6 +1262,12 @@
     function endGame(reason) {
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
+
+        // Stop voice recognition
+        if (voiceModeEnabled) {
+            stopListening();
+        }
+
         endMessage.textContent = reason;
         finalScore.textContent = streak;
         const avg = responseTimes.length > 0
