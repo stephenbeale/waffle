@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stroop Test</title>
+    <title>Waffle</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -90,10 +90,12 @@
         #timer-bar.warning { background: #e94560; }
 
         .buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
             gap: 1.2rem;
-            flex-wrap: wrap;
             justify-content: center;
+            max-width: 420px;
+            margin: 0 auto;
         }
 
         .color-btn {
@@ -114,11 +116,15 @@
             border-color: #fff;
         }
 
-        .color-btn[data-color="red"]   { background: #dc3545; }
-        .color-btn[data-color="green"] { background: #28a745; }
-        .color-btn[data-color="blue"]  { background: #007bff; }
+        .color-btn[data-color="red"]    { background: #dc3545; }
+        .color-btn[data-color="green"]  { background: #28a745; }
+        .color-btn[data-color="blue"]   { background: #007bff; }
         .color-btn[data-color="grey"]   { background: #808080; }
-        .color-btn[data-color="yellow"] { background: #d4a017; color: #fff; }
+        .color-btn[data-color="yellow"] { background: #d4a017; }
+        .color-btn[data-color="orange"] { background: #fd7e14; }
+        .color-btn[data-color="pink"]   { background: #e83e8c; }
+        .color-btn[data-color="purple"] { background: #6f42c1; }
+        .color-btn[data-color="brown"]  { background: #795548; }
 
         #end-screen h1 { font-size: 2rem; }
 
@@ -187,6 +193,15 @@
             transform: translateX(22px);
         }
 
+        .toggle input:disabled + .toggle-track {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toggle-row.disabled {
+            opacity: 0.6;
+        }
+
         .color-btn.no-label { color: transparent; }
         .color-btn.no-fill { background: #333 !important; }
 
@@ -253,23 +268,65 @@
             color: #fff;
         }
 
-        .custom-toggles {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .custom-toggles.visible {
-            display: flex;
-        }
-
         .difficulty-info {
             color: #666;
             font-size: 0.9rem;
             margin-bottom: 1.5rem;
             text-align: center;
             min-height: 1.2em;
+        }
+
+        .custom-toggles {
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .custom-toggles.visible {
+            display: flex;
+        }
+
+        .custom-toggles .toggle-row {
+            margin-bottom: 1rem;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .language-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .language-btn:hover {
+            border-color: #666;
+            color: #fff;
+        }
+
+        .language-btn.selected {
+            border-color: #0f3460;
+            background: #0f3460;
+            color: #fff;
+        }
+
+        .language-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .audio-indicator {
@@ -364,24 +421,33 @@
 <body>
 
 <div id="start-screen" class="active">
-    <h1>Stroop Test</h1>
-    <p class="instructions">
+    <h1 id="game-title">Waffle</h1>
+    <p class="instructions" id="instructions-text">
         A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>
         Your task: identify the <strong>colour of the text</strong>, not the word itself.
     </p>
-    <div class="difficulty-selector">
-        <button class="difficulty-btn selected" data-difficulty="easy">Easy</button>
-        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-        <button class="difficulty-btn" data-difficulty="custom">Custom</button>
+    <div class="language-label" id="language-label">Language</div>
+    <div class="language-selector">
+        <button class="language-btn selected" data-lang="en">English</button>
+        <button class="language-btn" data-lang="cy">Cymraeg</button>
+        <button class="language-btn" data-lang="it">Italiano</button>
+        <button class="language-btn" data-lang="es">Espanol</button>
+        <button class="language-btn" data-lang="fr">Francais</button>
+        <button class="language-btn" data-lang="de">Deutsch</button>
     </div>
-    <div class="difficulty-info" id="difficulty-info">Colour buttons, labels shown, 10s timer</div>
+    <div class="difficulty-selector">
+        <button class="difficulty-btn selected" data-difficulty="easy" data-i18n="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium" data-i18n="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard" data-i18n="hard">Hard</button>
+        <button class="difficulty-btn" data-difficulty="custom" data-i18n="custom">Custom</button>
+    </div>
+    <div class="difficulty-info" id="difficulty-info">Labels shown, 10s timer, min 2s</div>
     <div class="audio-toggle-row">
         <label class="toggle">
             <input type="checkbox" id="voice-mode">
             <span class="toggle-track"></span>
         </label>
-        <span>Voice input mode (say the colour)</span>
+        <span id="label-voice-mode">Voice input mode (say the colour)</span>
     </div>
     <div class="audio-warning" id="audio-warning">Voice input requires Chrome or Edge browser and microphone permission.</div>
     <div class="custom-toggles" id="custom-toggles">
@@ -390,28 +456,40 @@
                 <input type="checkbox" id="show-labels" checked>
                 <span class="toggle-track"></span>
             </label>
-            <span>Show labels on buttons</span>
+            <span id="label-show-labels">Show labels on buttons</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="shuffle-buttons">
                 <span class="toggle-track"></span>
             </label>
-            <span>Shuffle buttons every 10 answers</span>
+            <span id="label-shuffle-buttons">Shuffle buttons every 10 answers</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="shuffle-every-answer">
                 <span class="toggle-track"></span>
             </label>
-            <span>Shuffle button order after every correct answer</span>
+            <span id="label-shuffle-every">Shuffle every answer</span>
         </div>
         <div class="toggle-row">
             <label class="toggle">
                 <input type="checkbox" id="no-colour-fill">
                 <span class="toggle-track"></span>
             </label>
-            <span>Remove colour fill from buttons</span>
+            <span id="label-no-fill">Remove colour fill from buttons</span>
+        </div>
+        <div class="toggle-row">
+            <span id="label-colours">Colours: <span id="colour-count-label">5</span></span>
+            <input type="range" id="colour-count" min="3" max="9" value="5" style="width:120px;margin-left:0.5rem">
+        </div>
+        <div class="toggle-row">
+            <span id="label-time">Time: <span id="time-limit-label">10</span>s</span>
+            <input type="range" id="time-limit-slider" min="3" max="15" value="10" style="width:120px;margin-left:0.5rem">
+        </div>
+        <div class="toggle-row">
+            <span id="label-min-time">Min time: <span id="min-time-label">2</span>s</span>
+            <input type="range" id="min-time-slider" min="1" max="5" value="2" style="width:120px;margin-left:0.5rem">
         </div>
     </div>
     <button id="start-btn">Start</button>
@@ -422,7 +500,7 @@
         <div class="mic-icon" id="mic-icon"></div>
         <span id="audio-status" aria-live="polite" aria-atomic="true">Listening...</span>
     </div>
-    <div class="prompt-label">What colour is the text?</div>
+    <div class="prompt-label" id="prompt-label">What colour is the text?</div>
     <div id="color-word">RED</div>
     <div class="voice-feedback" id="voice-feedback" aria-live="polite" aria-atomic="true"></div>
     <div id="timer-bar-container">
@@ -438,32 +516,253 @@
 </div>
 
 <div id="pause-overlay">
-    <h2>Level Up!</h2>
+    <h2 id="level-up-text">Level Up!</h2>
     <p id="pause-message"></p>
     <div class="countdown" id="pause-countdown">5</div>
 </div>
 
 <div id="end-screen">
-    <h1>Game Over</h1>
+    <h1 id="game-over-text">Game Over</h1>
     <div id="end-message"></div>
     <div id="final-score">0</div>
-    <div class="prompt-label">streak</div>
-    <div id="avg-response" style="font-size:2.5rem;font-weight:900;color:#0f3460;margin-top:1.5rem">0 ms</div>
-    <div class="prompt-label" style="margin-bottom:2rem">avg response time</div>
+    <div class="prompt-label" id="streak-label">streak</div>
+    <div id="avg-response" style="font-size:2.5rem;font-weight:900;color:#0f3460;margin-top:1.5rem">0.0 s</div>
+    <div class="prompt-label" style="margin-bottom:2rem" id="avg-label">avg response time</div>
     <button id="restart-btn">Play Again</button>
 </div>
 
 <script>
-    const COLORS = ['red', 'green', 'blue', 'grey', 'yellow'];
-    const COLOR_CSS = { red: '#dc3545', green: '#28a745', blue: '#007bff', grey: '#999', yellow: '#e6c619' };
+    const ALL_COLORS = ['red', 'green', 'blue', 'grey', 'yellow', 'orange', 'pink', 'purple', 'brown'];
+    const COLOR_CSS = {
+        red: '#dc3545', green: '#28a745', blue: '#007bff', grey: '#999', yellow: '#e6c619',
+        orange: '#fd7e14', pink: '#e83e8c', purple: '#6f42c1', brown: '#795548'
+    };
+    let activeColors = ALL_COLORS.slice(0, 5);
+
+    // Language translations for colour names
+    const TRANSLATIONS = {
+        en: {
+            red: 'Red', green: 'Green', blue: 'Blue', grey: 'Grey', yellow: 'Yellow',
+            orange: 'Orange', pink: 'Pink', purple: 'Purple', brown: 'Brown'
+        },
+        cy: {
+            red: 'Coch', green: 'Gwyrdd', blue: 'Glas', grey: 'Llwyd', yellow: 'Melyn',
+            orange: 'Oren', pink: 'Pinc', purple: 'Porffor', brown: 'Brown'
+        },
+        it: {
+            red: 'Rosso', green: 'Verde', blue: 'Blu', grey: 'Grigio', yellow: 'Giallo',
+            orange: 'Arancione', pink: 'Rosa', purple: 'Viola', brown: 'Marrone'
+        },
+        es: {
+            red: 'Rojo', green: 'Verde', blue: 'Azul', grey: 'Gris', yellow: 'Amarillo',
+            orange: 'Naranja', pink: 'Rosa', purple: 'Morado', brown: 'Marron'
+        },
+        fr: {
+            red: 'Rouge', green: 'Vert', blue: 'Bleu', grey: 'Gris', yellow: 'Jaune',
+            orange: 'Orange', pink: 'Rose', purple: 'Violet', brown: 'Brun'
+        },
+        de: {
+            red: 'Rot', green: 'Grun', blue: 'Blau', grey: 'Grau', yellow: 'Gelb',
+            orange: 'Orange', pink: 'Rosa', purple: 'Lila', brown: 'Braun'
+        }
+    };
 
     // Aliases for voice recognition to handle accents and pronunciation variations
     const COLOR_ALIASES = {
-        red: ['red', 'read', 'rad', 'rid', 'bread'],
-        green: ['green', 'grin', 'grain', 'greed'],
-        blue: ['blue', 'blew', 'blow', 'boo'],
-        grey: ['grey', 'gray', 'great', 'grade', 'grape'],
-        yellow: ['yellow', 'yell', 'yeller', 'jello', 'hello']
+        en: {
+            red: ['red', 'read', 'rad', 'rid', 'bread'],
+            green: ['green', 'grin', 'grain', 'greed'],
+            blue: ['blue', 'blew', 'blow', 'boo'],
+            grey: ['grey', 'gray', 'great', 'grade', 'grape'],
+            yellow: ['yellow', 'yell', 'yeller', 'jello', 'hello'],
+            orange: ['orange', 'oranges'],
+            pink: ['pink', 'ping', 'pint'],
+            purple: ['purple', 'purples'],
+            brown: ['brown', 'brow', 'brownie']
+        },
+        cy: {
+            red: ['coch', 'goch'],
+            green: ['gwyrdd', 'wyrdd'],
+            blue: ['glas', 'las'],
+            grey: ['llwyd', 'lwyd'],
+            yellow: ['melyn', 'felyn'],
+            orange: ['oren'],
+            pink: ['pinc'],
+            purple: ['porffor'],
+            brown: ['brown']
+        },
+        it: {
+            red: ['rosso'],
+            green: ['verde'],
+            blue: ['blu'],
+            grey: ['grigio'],
+            yellow: ['giallo'],
+            orange: ['arancione'],
+            pink: ['rosa'],
+            purple: ['viola'],
+            brown: ['marrone']
+        },
+        es: {
+            red: ['rojo'],
+            green: ['verde'],
+            blue: ['azul'],
+            grey: ['gris'],
+            yellow: ['amarillo'],
+            orange: ['naranja'],
+            pink: ['rosa'],
+            purple: ['morado'],
+            brown: ['marron']
+        },
+        fr: {
+            red: ['rouge'],
+            green: ['vert', 'verte'],
+            blue: ['bleu', 'bleue'],
+            grey: ['gris', 'grise'],
+            yellow: ['jaune'],
+            orange: ['orange'],
+            pink: ['rose'],
+            purple: ['violet', 'violette'],
+            brown: ['brun', 'brune']
+        },
+        de: {
+            red: ['rot', 'rote'],
+            green: ['grun', 'grune'],
+            blue: ['blau', 'blaue'],
+            grey: ['grau', 'graue'],
+            yellow: ['gelb', 'gelbe'],
+            orange: ['orange'],
+            pink: ['rosa'],
+            purple: ['lila'],
+            brown: ['braun', 'braune']
+        }
+    };
+
+    // UI translations
+    const UI_TRANSLATIONS = {
+        en: {
+            title: 'Waffle',
+            instructions: 'A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>Your task: identify the <strong>colour of the text</strong>, not the word itself.',
+            language: 'Language',
+            easy: 'Easy', medium: 'Medium', hard: 'Hard', custom: 'Custom',
+            start: 'Start',
+            voiceMode: 'Voice input mode (say the colour)',
+            voiceWarning: 'Voice input requires Chrome or Edge browser and microphone permission.',
+            showLabels: 'Show labels on buttons',
+            shuffleButtons: 'Shuffle buttons every 10 answers',
+            shuffleEvery: 'Shuffle every answer',
+            noFill: 'Remove colour fill from buttons',
+            colours: 'Colours',
+            time: 'Time',
+            minTime: 'Min time',
+            prompt: 'What colour is the text?',
+            levelUp: 'Level Up!',
+            gameOver: 'Game Over',
+            streak: 'streak',
+            avgResponse: 'avg response time',
+            playAgain: 'Play Again',
+            timeRanOut: 'Time ran out!',
+            answerWas: 'The answer was',
+            niceWork: 'Nice work!',
+            inARow: 'in a row!',
+            timeNow: 'Time per round is now',
+            second: 'second',
+            seconds: 'seconds',
+            buttonsShuffled: 'Buttons shuffled!',
+            easyInfo: 'Labels shown, 10s timer, min 2s',
+            mediumInfo: 'No labels, shuffle every 10, 8s timer',
+            hardInfo: 'No colour fill, shuffle every answer, 6s timer, min 1s',
+            customInfo: 'Configure your own settings',
+            listening: 'Listening...',
+            noSpeech: 'No speech detected...',
+            micBlocked: 'Microphone blocked',
+            heard: 'Heard'
+        },
+        cy: {
+            title: 'Waffle',
+            instructions: 'Bydd gair lliw yn ymddangos ar y sgrin, ond mewn <strong>lliw gwahanol</strong>.<br><br>Eich tasg: adnabod <strong>lliw\'r testun</strong>, nid y gair ei hun.',
+            language: 'Iaith',
+            easy: 'Hawdd', medium: 'Canolig', hard: 'Anodd', custom: 'Arferol',
+            start: 'Dechrau',
+            voiceMode: 'Modd llais (dywedwch y lliw)',
+            voiceWarning: 'Mae angen Chrome neu Edge a chaniatâd meicroffon.',
+            showLabels: 'Dangos labeli ar fotymau',
+            shuffleButtons: 'Cymysgu botymau bob 10 ateb',
+            shuffleEvery: 'Cymysgu bob ateb',
+            noFill: 'Tynnu lliw o fotymau',
+            colours: 'Lliwiau',
+            time: 'Amser',
+            minTime: 'Amser lleiaf',
+            prompt: 'Pa liw yw\'r testun?',
+            levelUp: 'Lefel Lan!',
+            gameOver: 'Gêm Drosodd',
+            streak: 'rhediad',
+            avgResponse: 'amser ymateb cyfartalog',
+            playAgain: 'Chwarae Eto',
+            timeRanOut: 'Amser wedi rhedeg allan!',
+            answerWas: 'Yr ateb oedd',
+            niceWork: 'Da iawn!',
+            inARow: 'yn olynol!',
+            timeNow: 'Amser y rownd nawr yw',
+            second: 'eiliad',
+            seconds: 'eiliad',
+            buttonsShuffled: 'Botymau wedi cymysgu!',
+            easyInfo: 'Labeli, 10e amserydd, min 2e',
+            mediumInfo: 'Dim labeli, cymysgu bob 10, 8e amserydd',
+            hardInfo: 'Dim lliw, cymysgu bob ateb, 6e amserydd, min 1e',
+            customInfo: 'Ffurfweddwch eich gosodiadau',
+            listening: 'Gwrando...',
+            noSpeech: 'Dim lleferydd...',
+            micBlocked: 'Meicroffon wedi\'i rwystro',
+            heard: 'Clywyd'
+        },
+        es: {
+            title: 'Waffle',
+            instructions: 'Una palabra de color aparecerá en pantalla, pero mostrada en un <strong>color diferente</strong>.<br><br>Tu tarea: identificar el <strong>color del texto</strong>, no la palabra en sí.',
+            language: 'Idioma',
+            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', custom: 'Personalizado',
+            start: 'Empezar',
+            voiceMode: 'Modo de voz (di el color)',
+            voiceWarning: 'El modo de voz requiere Chrome o Edge y permiso de micrófono.',
+            showLabels: 'Mostrar etiquetas en botones',
+            shuffleButtons: 'Mezclar botones cada 10 respuestas',
+            shuffleEvery: 'Mezclar en cada respuesta',
+            noFill: 'Quitar color de fondo de botones',
+            colours: 'Colores',
+            time: 'Tiempo',
+            minTime: 'Tiempo mín',
+            prompt: '¿De qué color es el texto?',
+            levelUp: '¡Subiste de nivel!',
+            gameOver: 'Fin del juego',
+            streak: 'racha',
+            avgResponse: 'tiempo de respuesta promedio',
+            playAgain: 'Jugar de nuevo',
+            timeRanOut: '¡Se acabó el tiempo!',
+            answerWas: 'La respuesta era',
+            niceWork: '¡Buen trabajo!',
+            inARow: '¡seguidas!',
+            timeNow: 'El tiempo por ronda ahora es',
+            second: 'segundo',
+            seconds: 'segundos',
+            buttonsShuffled: '¡Botones mezclados!',
+            easyInfo: 'Etiquetas, 10s temporizador, mín 2s',
+            mediumInfo: 'Sin etiquetas, mezclar cada 10, 8s temporizador',
+            hardInfo: 'Sin color, mezclar cada respuesta, 6s temporizador, mín 1s',
+            customInfo: 'Configura tus propios ajustes',
+            listening: 'Escuchando...',
+            noSpeech: 'No se detectó voz...',
+            micBlocked: 'Micrófono bloqueado',
+            heard: 'Escuchado'
+        }
+    };
+
+    // Speech recognition language codes
+    const SPEECH_LANG_CODES = {
+        en: 'en-GB',
+        cy: 'cy-GB',
+        it: 'it-IT',
+        es: 'es-ES',
+        fr: 'fr-FR',
+        de: 'de-DE'
     };
 
     // Web Speech Recognition setup
@@ -472,6 +771,8 @@
     let voiceModeEnabled = false;
     let isListening = false;
 
+    let selectedLanguage = localStorage.getItem('stroopLanguage') || 'en';
+
     const DIFFICULTY_PRESETS = {
         easy: {
             showLabels: true,
@@ -479,8 +780,7 @@
             shuffleEveryAnswer: false,
             noColourFill: false,
             initialTime: 10000,
-            minTime: 2000,
-            info: 'Colour buttons, labels shown, 10s timer'
+            minTime: 2000
         },
         medium: {
             showLabels: false,
@@ -488,8 +788,7 @@
             shuffleEveryAnswer: false,
             noColourFill: false,
             initialTime: 8000,
-            minTime: 2000,
-            info: 'Colour buttons, no labels, shuffle every 10, 8s timer'
+            minTime: 2000
         },
         hard: {
             showLabels: true,
@@ -497,8 +796,7 @@
             shuffleEveryAnswer: true,
             noColourFill: true,
             initialTime: 6000,
-            minTime: 1000,
-            info: 'No colour fill, shuffle every answer, 6s timer, min 1s'
+            minTime: 1000
         }
     };
 
@@ -517,6 +815,9 @@
     let noColourFill = false;
     let responseTimes = [];
     let selectedDifficulty = 'easy';
+    let colourCount = 5;
+    let customTimeLimit = 10;
+    let customMinTime = 2;
 
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
@@ -533,6 +834,7 @@
     const difficultyBtns = document.querySelectorAll('.difficulty-btn');
     const difficultyInfo = document.getElementById('difficulty-info');
     const customToggles = document.getElementById('custom-toggles');
+    const languageBtns = document.querySelectorAll('.language-btn');
     const voiceModeToggle = document.getElementById('voice-mode');
     const audioWarning = document.getElementById('audio-warning');
     const audioIndicator = document.getElementById('audio-indicator');
@@ -560,7 +862,7 @@
     document.getElementById('start-btn').addEventListener('click', startGame);
     document.getElementById('restart-btn').addEventListener('click', () => {
         // Reset buttons visibility for next game
-        buttonsContainer.style.display = 'flex';
+        buttonsContainer.style.display = 'grid';
         show(startScreen);
     });
     buttons.forEach(btn => btn.addEventListener('click', () => handleAnswer(btn.dataset.color)));
@@ -572,7 +874,7 @@
         const recog = new SpeechRecognition();
         recog.continuous = true;
         recog.interimResults = true;
-        recog.lang = 'en-GB';
+        recog.lang = getSpeechLangCode();
 
         recog.onresult = (event) => {
             const result = event.results[event.results.length - 1];
@@ -580,7 +882,7 @@
             const lastWord = transcript.split(' ').pop();
 
             // Show what was heard
-            voiceFeedback.textContent = `Heard: "${lastWord}"`;
+            voiceFeedback.textContent = `${getUIText('heard')}: "${lastWord}"`;
 
             // Check if final result
             if (result.isFinal) {
@@ -594,9 +896,9 @@
         recog.onerror = (event) => {
             console.log('Speech recognition error:', event.error);
             if (event.error === 'no-speech') {
-                audioStatus.textContent = 'No speech detected...';
+                audioStatus.textContent = getUIText('noSpeech');
             } else if (event.error === 'not-allowed') {
-                audioStatus.textContent = 'Microphone blocked';
+                audioStatus.textContent = getUIText('micBlocked');
                 stopListening();
             }
         };
@@ -618,10 +920,11 @@
 
     function matchColorFromSpeech(word) {
         const normalized = word.toLowerCase().replace(/[^a-z]/g, '');
-        if (normalized.length < 3) return null;
+        if (normalized.length < 2) return null;
 
-        for (const [color, aliases] of Object.entries(COLOR_ALIASES)) {
-            if (aliases.includes(normalized)) {
+        const aliases = COLOR_ALIASES[selectedLanguage] || COLOR_ALIASES.en;
+        for (const [color, colorAliases] of Object.entries(aliases)) {
+            if (activeColors.includes(color) && colorAliases.includes(normalized)) {
                 return color;
             }
         }
@@ -635,7 +938,7 @@
             isListening = true;
             audioIndicator.classList.add('active');
             micIcon.classList.add('listening');
-            audioStatus.textContent = 'Listening...';
+            audioStatus.textContent = getUIText('listening');
             voiceFeedback.classList.add('active');
             voiceFeedback.textContent = '';
         } catch (e) {
@@ -656,6 +959,123 @@
         voiceFeedback.classList.remove('active');
     }
 
+    // Force labels on when no-colour-fill is enabled (otherwise game is impossible)
+    const noColourFillCheckbox = document.getElementById('no-colour-fill');
+    const showLabelsCheckbox = document.getElementById('show-labels');
+    const showLabelsRow = showLabelsCheckbox.closest('.toggle-row');
+
+    noColourFillCheckbox.addEventListener('change', () => {
+        if (noColourFillCheckbox.checked) {
+            showLabelsCheckbox.checked = true;
+            showLabelsCheckbox.disabled = true;
+            showLabelsRow.classList.add('disabled');
+        } else {
+            showLabelsCheckbox.disabled = false;
+            showLabelsRow.classList.remove('disabled');
+        }
+    });
+
+    // Colour count slider
+    const colourCountSlider = document.getElementById('colour-count');
+    colourCountSlider.addEventListener('input', () => {
+        colourCount = parseInt(colourCountSlider.value);
+        const label = document.getElementById('colour-count-label');
+        if (label) label.textContent = colourCount;
+    });
+
+    // Time limit slider
+    const timeLimitSlider = document.getElementById('time-limit-slider');
+    const minTimeSlider = document.getElementById('min-time-slider');
+
+    timeLimitSlider.addEventListener('input', () => {
+        customTimeLimit = parseInt(timeLimitSlider.value);
+        document.getElementById('time-limit-label').textContent = customTimeLimit;
+        // Ensure min time doesn't exceed time limit
+        if (customMinTime > customTimeLimit) {
+            customMinTime = customTimeLimit;
+            minTimeSlider.value = customMinTime;
+            document.getElementById('min-time-label').textContent = customMinTime;
+        }
+        minTimeSlider.max = customTimeLimit;
+    });
+
+    minTimeSlider.addEventListener('input', () => {
+        customMinTime = parseInt(minTimeSlider.value);
+        document.getElementById('min-time-label').textContent = customMinTime;
+    });
+
+    // Language selection
+    languageBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            languageBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedLanguage = btn.dataset.lang;
+            localStorage.setItem('stroopLanguage', selectedLanguage);
+            applyUITranslations();
+        });
+    });
+
+    // Get UI text for current language (falls back to English)
+    function getUIText(key) {
+        const lang = UI_TRANSLATIONS[selectedLanguage] ? selectedLanguage : 'en';
+        return UI_TRANSLATIONS[lang][key] || UI_TRANSLATIONS.en[key];
+    }
+
+    // Apply UI translations to the page
+    function applyUITranslations() {
+        document.getElementById('game-title').textContent = getUIText('title');
+        document.getElementById('instructions-text').innerHTML = getUIText('instructions');
+        document.getElementById('language-label').textContent = getUIText('language');
+        document.getElementById('start-btn').textContent = getUIText('start');
+        document.getElementById('label-voice-mode').textContent = getUIText('voiceMode');
+        document.getElementById('audio-warning').textContent = getUIText('voiceWarning');
+        document.getElementById('label-show-labels').textContent = getUIText('showLabels');
+        document.getElementById('label-shuffle-buttons').textContent = getUIText('shuffleButtons');
+        document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
+        document.getElementById('label-no-fill').textContent = getUIText('noFill');
+        document.getElementById('label-colours').innerHTML = getUIText('colours') + ': <span id="colour-count-label">' + colourCount + '</span>';
+        document.getElementById('label-time').innerHTML = getUIText('time') + ': <span id="time-limit-label">' + customTimeLimit + '</span>s';
+        document.getElementById('label-min-time').innerHTML = getUIText('minTime') + ': <span id="min-time-label">' + customMinTime + '</span>s';
+        document.getElementById('prompt-label').textContent = getUIText('prompt');
+        document.getElementById('level-up-text').textContent = getUIText('levelUp');
+        document.getElementById('game-over-text').textContent = getUIText('gameOver');
+        document.getElementById('streak-label').textContent = getUIText('streak');
+        document.getElementById('avg-label').textContent = getUIText('avgResponse');
+        document.getElementById('restart-btn').textContent = getUIText('playAgain');
+
+        // Update difficulty buttons
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            const key = btn.dataset.difficulty;
+            btn.textContent = getUIText(key);
+        });
+
+        // Update difficulty info if not custom
+        if (selectedDifficulty !== 'custom') {
+            difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
+        } else {
+            difficultyInfo.textContent = getUIText('customInfo');
+        }
+    }
+
+    // Restore saved language on page load
+    function initLanguageSelection() {
+        languageBtns.forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.lang === selectedLanguage);
+        });
+        applyUITranslations();
+    }
+    initLanguageSelection();
+
+    // Get translated colour name
+    function getTranslatedColour(color) {
+        return TRANSLATIONS[selectedLanguage][color] || TRANSLATIONS.en[color];
+    }
+
+    // Get speech recognition language code
+    function getSpeechLangCode() {
+        return SPEECH_LANG_CODES[selectedLanguage] || 'en-GB';
+    }
+
     difficultyBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             difficultyBtns.forEach(b => b.classList.remove('selected'));
@@ -664,10 +1084,10 @@
 
             if (selectedDifficulty === 'custom') {
                 customToggles.classList.add('visible');
-                difficultyInfo.textContent = 'Configure your own settings';
+                difficultyInfo.textContent = getUIText('customInfo');
             } else {
                 customToggles.classList.remove('visible');
-                difficultyInfo.textContent = DIFFICULTY_PRESETS[selectedDifficulty].info;
+                difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
             }
         });
     });
@@ -687,8 +1107,9 @@
             shuffleEnabled = document.getElementById('shuffle-buttons').checked;
             shuffleEveryAnswer = document.getElementById('shuffle-every-answer').checked;
             noColourFill = document.getElementById('no-colour-fill').checked;
-            timeLimit = 10000;
-            minTimeLimit = 2000;
+            colourCount = parseInt(document.getElementById('colour-count').value);
+            timeLimit = customTimeLimit * 1000;
+            minTimeLimit = customMinTime * 1000;
         } else {
             const preset = DIFFICULTY_PRESETS[selectedDifficulty];
             showLabels = preset.showLabels;
@@ -697,13 +1118,15 @@
             noColourFill = preset.noColourFill;
             timeLimit = preset.initialTime;
             minTimeLimit = preset.minTime;
+            colourCount = 5; // Default for presets
         }
 
-        buttons.forEach(btn => btn.classList.toggle('no-label', !showLabels));
-        buttons.forEach(btn => btn.classList.toggle('no-fill', noColourFill));
+        // Set active colours and regenerate buttons
+        activeColors = ALL_COLORS.slice(0, colourCount);
+        generateButtons();
 
         // Hide buttons in voice mode
-        buttonsContainer.style.display = voiceModeEnabled ? 'none' : 'flex';
+        buttonsContainer.style.display = voiceModeEnabled ? 'none' : 'grid';
 
         // Initialize and start speech recognition if voice mode enabled
         if (voiceModeEnabled && speechSupported) {
@@ -715,17 +1138,31 @@
         nextRound();
     }
 
+    function generateButtons() {
+        buttonsContainer.innerHTML = '';
+        activeColors.forEach(color => {
+            const btn = document.createElement('button');
+            btn.className = 'color-btn';
+            btn.dataset.color = color;
+            btn.textContent = getTranslatedColour(color);
+            btn.addEventListener('click', () => handleAnswer(color));
+            if (!showLabels) btn.classList.add('no-label');
+            if (noColourFill) btn.classList.add('no-fill');
+            buttonsContainer.appendChild(btn);
+        });
+    }
+
     function pickRandomColor(exclude) {
-        const options = COLORS.filter(c => c !== exclude);
+        const options = activeColors.filter(c => c !== exclude);
         return options[Math.floor(Math.random() * options.length)];
     }
 
     function nextRound() {
-        const word = COLORS[wordIndex % COLORS.length];
+        const word = activeColors[wordIndex % activeColors.length];
         currentFillColor = pickRandomColor(word);
         wordIndex++;
 
-        colorWord.textContent = word.toUpperCase();
+        colorWord.textContent = getTranslatedColour(word).toUpperCase();
         colorWord.style.color = COLOR_CSS[currentFillColor];
 
         timerBar.style.transition = 'none';
@@ -746,7 +1183,7 @@
             if (elapsed < timeLimit) timerRAF = requestAnimationFrame(tick);
         });
 
-        timeout = setTimeout(() => endGame('Time ran out!'), timeLimit);
+        timeout = setTimeout(() => endGame(getUIText('timeRanOut')), timeLimit);
     }
 
     function handleAnswer(chosen) {
@@ -767,7 +1204,7 @@
                 nextRound();
             }
         } else {
-            endGame(`The answer was ${currentFillColor.toUpperCase()}.`);
+            endGame(`${getUIText('answerWas')} ${getTranslatedColour(currentFillColor).toUpperCase()}.`);
         }
     }
 
@@ -781,12 +1218,13 @@
         const newLimit = canReduceTime ? Math.max(timeLimit - 1000, minTimeLimit) : timeLimit;
         const newSeconds = newLimit / 1000;
 
-        let msg = `Nice work! ${streak} in a row!`;
+        let msg = `${getUIText('niceWork')} ${streak} ${getUIText('inARow')}`;
         if (canReduceTime) {
-            msg += ` Time per round is now ${newSeconds} second${newSeconds !== 1 ? 's' : ''}.`;
+            const secWord = newSeconds !== 1 ? getUIText('seconds') : getUIText('second');
+            msg += ` ${getUIText('timeNow')} ${newSeconds} ${secWord}.`;
         }
         if (shuffleEnabled) {
-            msg += ' Buttons shuffled!';
+            msg += ' ' + getUIText('buttonsShuffled');
         }
         pauseMessage.textContent = msg;
         pauseCountdown.textContent = '5';
@@ -833,9 +1271,9 @@
         endMessage.textContent = reason;
         finalScore.textContent = streak;
         const avg = responseTimes.length > 0
-            ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
-            : 0;
-        document.getElementById('avg-response').textContent = avg + ' ms';
+            ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
+            : '0.0';
+        document.getElementById('avg-response').textContent = avg + ' s';
         show(endScreen);
     }
 </script>
