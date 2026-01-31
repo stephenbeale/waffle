@@ -324,6 +324,12 @@
             50% { opacity: 0.5; }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .mic-icon.listening {
+                animation: none;
+            }
+        }
+
         .audio-toggle-row {
             display: flex;
             align-items: center;
@@ -414,11 +420,11 @@
 <div id="game-screen">
     <div class="audio-indicator" id="audio-indicator">
         <div class="mic-icon" id="mic-icon"></div>
-        <span id="audio-status">Listening...</span>
+        <span id="audio-status" aria-live="polite" aria-atomic="true">Listening...</span>
     </div>
     <div class="prompt-label">What colour is the text?</div>
     <div id="color-word">RED</div>
-    <div class="voice-feedback" id="voice-feedback"></div>
+    <div class="voice-feedback" id="voice-feedback" aria-live="polite" aria-atomic="true"></div>
     <div id="timer-bar-container">
         <div id="timer-bar"></div>
     </div>
@@ -596,10 +602,11 @@
         };
 
         recog.onend = () => {
+            isListening = false;
             // Restart if still in voice mode and game is active
             if (voiceModeEnabled && gameScreen.classList.contains('active') && !pauseOverlay.classList.contains('active')) {
                 setTimeout(() => {
-                    if (voiceModeEnabled && gameScreen.classList.contains('active')) {
+                    if (voiceModeEnabled && gameScreen.classList.contains('active') && !isListening) {
                         startListening();
                     }
                 }, 100);
@@ -610,8 +617,11 @@
     }
 
     function matchColorFromSpeech(word) {
+        const normalized = word.toLowerCase().replace(/[^a-z]/g, '');
+        if (normalized.length < 3) return null;
+
         for (const [color, aliases] of Object.entries(COLOR_ALIASES)) {
-            if (aliases.some(alias => word.includes(alias) || alias.includes(word))) {
+            if (aliases.includes(normalized)) {
                 return color;
             }
         }
