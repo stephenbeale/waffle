@@ -755,6 +755,9 @@
             second: 'second',
             seconds: 'seconds',
             buttonsShuffled: 'Buttons shuffled!',
+            youWin: 'You Win!',
+            winMessage: 'You completed the ultimate challenge at 0.2 seconds per round!',
+            finalChallenge: 'Final challenge! 0.2 seconds per round.',
             easyInfo: 'Labels shown, 10s timer, min 2s',
             mediumInfo: 'No labels, shuffle every 10, 8s timer',
             hardInfo: 'No colour fill, shuffle every answer, 6s timer, min 1s',
@@ -798,6 +801,9 @@
             second: 'eiliad',
             seconds: 'eiliad',
             buttonsShuffled: 'Botymau wedi cymysgu!',
+            youWin: 'Rydych chi\'n Ennill!',
+            winMessage: 'Fe gwblhaoch chi\'r her eithaf ar 0.2 eiliad y rownd!',
+            finalChallenge: 'Her derfynol! 0.2 eiliad y rownd.',
             easyInfo: 'Labeli, 10e amserydd, min 2e',
             mediumInfo: 'Dim labeli, cymysgu bob 10, 8e amserydd',
             hardInfo: 'Dim lliw, cymysgu bob ateb, 6e amserydd, min 1e',
@@ -841,6 +847,9 @@
             second: 'segundo',
             seconds: 'segundos',
             buttonsShuffled: '¡Botones mezclados!',
+            youWin: '¡Ganaste!',
+            winMessage: '¡Completaste el desafío definitivo a 0.2 segundos por ronda!',
+            finalChallenge: '¡Desafío final! 0.2 segundos por ronda.',
             easyInfo: 'Etiquetas, 10s temporizador, mín 2s',
             mediumInfo: 'Sin etiquetas, mezclar cada 10, 8s temporizador',
             hardInfo: 'Sin color, mezclar cada respuesta, 6s temporizador, mín 1s',
@@ -1006,6 +1015,8 @@
     let colourCount = 5;
     let customTimeLimit = 10;
     let customMinTime = 2;
+    let inFractionalPhase = false;
+    const ABSOLUTE_MIN_TIME = 200; // 0.2 seconds - the win condition threshold
 
     // Leaderboard variables
     let playerName = localStorage.getItem('wafflePlayerName') || '';
@@ -1295,6 +1306,7 @@
         wordIndex = 0;
         streak = 0;
         responseTimes = [];
+        inFractionalPhase = false;
 
         if (selectedDifficulty === 'custom') {
             showLabels = document.getElementById('show-labels').checked;
@@ -1391,8 +1403,8 @@
             responseTimes.push(performance.now() - timerStart);
             streak++;
             if (shuffleEveryAnswer) shuffleButtonOrder();
-            const canReduceTime = timeLimit > minTimeLimit;
-            if (streak > 0 && streak % 10 === 0 && (canReduceTime || shuffleEnabled)) {
+            // Always check at multiples of 10 for level up, time reduction, or win condition
+            if (streak > 0 && streak % 10 === 0) {
                 showPause();
             } else {
                 nextRound();
@@ -1408,14 +1420,42 @@
             stopListening();
         }
 
-        const canReduceTime = timeLimit > minTimeLimit;
-        const newLimit = canReduceTime ? Math.max(timeLimit - 1000, minTimeLimit) : timeLimit;
+        // Check for win condition: at absolute minimum (0.2s) and completed 10 more
+        if (timeLimit <= ABSOLUTE_MIN_TIME) {
+            winGame();
+            return;
+        }
+
+        // Calculate new time limit
+        let newLimit;
+        if (!inFractionalPhase && timeLimit > minTimeLimit) {
+            // Normal phase: reduce by 1 second
+            newLimit = Math.max(timeLimit - 1000, minTimeLimit);
+            if (newLimit <= minTimeLimit) {
+                // Entering fractional phase next time if we can still reduce
+                if (minTimeLimit > ABSOLUTE_MIN_TIME) {
+                    inFractionalPhase = true;
+                }
+            }
+        } else if (timeLimit > ABSOLUTE_MIN_TIME) {
+            // Fractional phase: reduce by 0.2 seconds (200ms)
+            inFractionalPhase = true;
+            newLimit = Math.max(timeLimit - 200, ABSOLUTE_MIN_TIME);
+        } else {
+            newLimit = timeLimit;
+        }
+
         const newSeconds = newLimit / 1000;
+        const canReduceTime = newLimit < timeLimit;
 
         let msg = `${getUIText('niceWork')} ${streak} ${getUIText('inARow')}`;
         if (canReduceTime) {
-            const secWord = newSeconds !== 1 ? getUIText('seconds') : getUIText('second');
-            msg += ` ${getUIText('timeNow')} ${newSeconds} ${secWord}.`;
+            if (newLimit === ABSOLUTE_MIN_TIME) {
+                msg += ` ${getUIText('finalChallenge')}`;
+            } else {
+                const secWord = newSeconds !== 1 ? getUIText('seconds') : getUIText('second');
+                msg += ` ${getUIText('timeNow')} ${newSeconds} ${secWord}.`;
+            }
         }
         if (shuffleEnabled) {
             msg += ' ' + getUIText('buttonsShuffled');
@@ -1554,6 +1594,26 @@
         // Check and display personal best
         checkAndDisplayPersonalBest(streak, avg);
 
+        show(endScreen);
+    }
+
+    function winGame() {
+        clearTimeout(timeout);
+        cancelAnimationFrame(timerRAF);
+
+        // Stop voice recognition
+        if (voiceModeEnabled) {
+            stopListening();
+        }
+
+        // Show win screen (reuse end screen with different messaging)
+        document.getElementById('game-over-text').textContent = getUIText('youWin');
+        endMessage.textContent = getUIText('winMessage');
+        finalScore.textContent = streak;
+        const avg = responseTimes.length > 0
+            ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
+            : '0.0';
+        document.getElementById('avg-response').textContent = avg + ' s';
         show(endScreen);
     }
 </script>
