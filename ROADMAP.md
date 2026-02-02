@@ -39,11 +39,11 @@ Replace individual toggles with three preset difficulty levels that group settin
 
 - Allow manual toggle configuration for players who want to mix and match settings outside the presets
 
-## Feature 3: UI Improvements
+## Feature 3: UI Improvements ✅
 
 - Left-align toggle options on the start screen for visual clarity
 
-## Feature 4: Audio Response Mode
+## Feature 4: Audio Response Mode ✅
 
 Add a mode where the player's microphone is the only input method. The player must say the colour name out loud instead of clicking a button. Uses the Web Speech Recognition API to capture and evaluate spoken answers in real time.
 
@@ -60,11 +60,11 @@ Add a mode where the player's microphone is the only input method. The player mu
 
 Add option to increase the number of colours from 5 up to 10 in Custom mode. Additional colours: orange, pink, purple, cyan, brown.
 
-## Feature 6: Language Selection
+## Feature 6: Language Selection ✅
 
 Add a toggle or dropdown to switch the game language. Colour words and button labels will display in the selected language, adding an extra cognitive challenge for multilingual players or language learners.
 
-## Feature 7: Increasing difficulty levels
+## Feature 7: Increasing difficulty levels ✅
 
 Add a fractional time reduction after user hits the minimum time limit - reduce down by 0.2 seconds each 10 correct answers, making it eventually impossible. At 0.2 seconds, after 10, tell the user they win - only way to improve is by improving response time.
 

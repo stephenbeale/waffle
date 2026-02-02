@@ -280,6 +280,12 @@
             display: none;
             flex-direction: column;
             align-items: flex-start;
+            width: 320px;
+            max-width: 90vw;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
         .custom-toggles.visible {
@@ -287,7 +293,12 @@
         }
 
         .custom-toggles .toggle-row {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            width: 100%;
+        }
+
+        .custom-toggles .toggle-row:last-child {
+            margin-bottom: 0;
         }
 
         .language-selector {
@@ -391,9 +402,12 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             color: #aaa;
             font-size: 1rem;
+            width: 320px;
+            max-width: 90vw;
+            justify-content: flex-start;
         }
 
         .audio-warning {
@@ -401,8 +415,9 @@
             color: #ff9800;
             font-size: 0.85rem;
             margin-bottom: 1rem;
-            text-align: center;
-            max-width: 400px;
+            text-align: left;
+            width: 320px;
+            max-width: 90vw;
         }
 
         .audio-warning.visible { display: block; }
@@ -676,7 +691,7 @@
             orange: ['oren'],
             pink: ['pinc'],
             purple: ['porffor'],
-            brown: ['brown']
+            brown: ['brown', 'frown']
         },
         it: {
             red: ['rosso'],
@@ -893,6 +908,9 @@
             second: 'secondo',
             seconds: 'secondi',
             buttonsShuffled: 'Pulsanti mescolati!',
+            youWin: 'Hai Vinto!',
+            winMessage: 'Hai completato la sfida finale a 0,2 secondi per round!',
+            finalChallenge: 'Sfida finale! 0,2 secondi per round.',
             easyInfo: 'Etichette, timer 10s, min 2s',
             mediumInfo: 'Senza etichette, mescola ogni 10, timer 8s',
             hardInfo: 'Senza colore, mescola ogni risposta, timer 6s, min 1s',
@@ -936,6 +954,9 @@
             second: 'seconde',
             seconds: 'secondes',
             buttonsShuffled: 'Boutons mélangés !',
+            youWin: 'Vous Avez Gagné !',
+            winMessage: 'Vous avez complété le défi ultime à 0.2 secondes par manche !',
+            finalChallenge: 'Défi final ! 0.2 secondes par manche.',
             easyInfo: 'Étiquettes, chrono 10s, min 2s',
             mediumInfo: 'Sans étiquettes, mélange tous les 10, chrono 8s',
             hardInfo: 'Sans couleur, mélange chaque réponse, chrono 6s, min 1s',
@@ -949,6 +970,52 @@
             newPersonalBest: 'Nouveau Record Personnel !',
             yourGoal: 'Votre objectif',
             previousBest: 'Meilleur précédent'
+        },
+        de: {
+            title: 'Waffle',
+            instructions: 'Ein Farbwort erscheint auf dem Bildschirm, aber in einer <strong>anderen Farbe</strong> dargestellt.<br><br>Ihre Aufgabe: Identifizieren Sie die <strong>Farbe des Textes</strong>, nicht das Wort selbst.',
+            language: 'Sprache',
+            easy: 'Leicht', medium: 'Mittel', hard: 'Schwer', custom: 'Benutzerdefiniert',
+            start: 'Start',
+            voiceMode: 'Sprachmodus (sagen Sie die Farbe)',
+            voiceWarning: 'Der Sprachmodus erfordert Chrome oder Edge und Mikrofonberechtigung.',
+            showLabels: 'Beschriftungen auf Schaltflächen anzeigen',
+            shuffleButtons: 'Schaltflächen alle 10 Antworten mischen',
+            shuffleEvery: 'Bei jeder Antwort mischen',
+            noFill: 'Hintergrundfarbe von Schaltflächen entfernen',
+            colours: 'Farben',
+            time: 'Zeit',
+            minTime: 'Min. Zeit',
+            prompt: 'Welche Farbe hat der Text?',
+            levelUp: 'Level Up!',
+            gameOver: 'Spiel Vorbei',
+            streak: 'Serie',
+            avgResponse: 'durchschnittliche Antwortzeit',
+            playAgain: 'Nochmal Spielen',
+            timeRanOut: 'Zeit abgelaufen!',
+            answerWas: 'Die Antwort war',
+            niceWork: 'Gut gemacht!',
+            inARow: 'in Folge!',
+            timeNow: 'Zeit pro Runde ist jetzt',
+            second: 'Sekunde',
+            seconds: 'Sekunden',
+            buttonsShuffled: 'Schaltflächen gemischt!',
+            youWin: 'Sie Haben Gewonnen!',
+            winMessage: 'Sie haben die ultimative Herausforderung bei 0,2 Sekunden pro Runde geschafft!',
+            finalChallenge: 'Letzte Herausforderung! 0,2 Sekunden pro Runde.',
+            easyInfo: 'Beschriftungen, 10s Timer, min 2s',
+            mediumInfo: 'Keine Beschriftungen, mischen alle 10, 8s Timer',
+            hardInfo: 'Keine Farbe, mischen jede Antwort, 6s Timer, min 1s',
+            customInfo: 'Eigene Einstellungen konfigurieren',
+            listening: 'Höre zu...',
+            noSpeech: 'Keine Sprache erkannt...',
+            micBlocked: 'Mikrofon blockiert',
+            heard: 'Gehört',
+            yourName: 'Ihr Name',
+            enterName: 'Name eingeben...',
+            newPersonalBest: 'Neuer Persönlicher Rekord!',
+            yourGoal: 'Ihr Ziel',
+            previousBest: 'Vorheriger Bestwert'
         }
     };
 
@@ -1614,6 +1681,10 @@
             ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
             : '0.0';
         document.getElementById('avg-response').textContent = avg + ' s';
+
+        // Check and display personal best
+        checkAndDisplayPersonalBest(streak, avg);
+
         show(endScreen);
     }
 </script>
