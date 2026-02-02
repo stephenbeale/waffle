@@ -58,7 +58,7 @@ Add a mode where the player's microphone is the only input method. The player mu
 
 ## Feature 5: Extra Colours ✅
 
-Add option to increase the number of colours from 5 up to 10 in Custom mode. Additional colours: orange, pink, purple, cyan, brown.
+Add option to increase the number of colours from 5 up to 9 in Custom mode. Additional colours: orange, pink, purple, brown.
 
 ## Feature 6: Language Selection ✅
 
@@ -94,6 +94,10 @@ Use brown instead of cyan. (Brown is used in the extended colour set; cyan was n
 | Blue | Glas | Blu | Azul | Bleu | Blau |
 | Grey | Llwyd | Grigio | Gris | Gris | Grau |
 | Yellow | Melyn | Giallo | Amarillo | Jaune | Gelb |
+| Orange | Oren | Arancione | Naranja | Orange | Orange |
+| Pink | Pinc | Rosa | Rosa | Rose | Rosa |
+| Purple | Porffor | Viola | Morado | Violet | Lila |
+| Brown | Brown | Marrone | Marrón | Brun | Braun |
 
 ### Considerations
 
