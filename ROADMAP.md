@@ -72,9 +72,9 @@ Add a fractional time reduction after user hits the minimum time limit - reduce 
 
 Ask user to input their name for leaderboard, to compete against themselves at this point. Tell them if they performed a personal best after subsequent runs, or what their goal is if not.
 
-## Feature 9: Use different colours to Cyan
+## Feature 9: Use different colours to Cyan ✅
 
-Use brown instead of cyan.
+Use brown instead of cyan. (Brown is used in the extended colour set; cyan was never included.)
 
 ### Supported Languages
 
