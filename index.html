@@ -116,6 +116,10 @@
             border-color: #fff;
         }
 
+        .color-btn:focus {
+            outline: none;
+        }
+
         .color-btn[data-color="red"]    { background: #dc3545; }
         .color-btn[data-color="green"]  { background: #28a745; }
         .color-btn[data-color="blue"]   { background: #007bff; }
@@ -395,6 +399,21 @@
         @media (prefers-reduced-motion: reduce) {
             .mic-icon.listening {
                 animation: none;
+            }
+        }
+
+        /* Mobile responsive: ensure buttons fit on narrow screens */
+        @media (max-width: 420px) {
+            .buttons {
+                grid-template-columns: repeat(3, 1fr);
+                width: 100%;
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .color-btn {
+                width: 100%;
+                min-width: 0;
             }
         }
 
@@ -1462,6 +1481,11 @@
     function handleAnswer(chosen) {
         if (!gameScreen.classList.contains('active')) return;
         if (pauseOverlay.classList.contains('active')) return;
+
+        // Clear any button focus/highlight immediately
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
 
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
