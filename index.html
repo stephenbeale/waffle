@@ -19,16 +19,18 @@
             user-select: none;
         }
 
-        #start-screen, #game-screen, #end-screen {
+        #start-screen, #game-screen, #end-screen, #stats-screen {
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100%;
             height: 100%;
+            padding: 1rem;
+            overflow-y: auto;
         }
 
-        #start-screen.active, #game-screen.active, #end-screen.active {
+        #start-screen.active, #game-screen.active, #end-screen.active, #stats-screen.active {
             display: flex;
         }
 
@@ -38,7 +40,7 @@
             max-width: 500px;
             text-align: center;
             line-height: 1.6;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: #aaa;
             font-size: 1.1rem;
         }
@@ -114,6 +116,10 @@
         .color-btn:hover {
             transform: scale(1.08);
             border-color: #fff;
+        }
+
+        .color-btn:focus {
+            outline: none;
         }
 
         .color-btn[data-color="red"]    { background: #dc3545; }
@@ -205,6 +211,7 @@
         .color-btn.no-label { color: transparent; }
         .color-btn.no-fill { background: #333 !important; }
 
+        /* Enhanced milestone/level-up overlay with animations */
         #pause-overlay {
             display: none;
             position: fixed;
@@ -213,30 +220,50 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            z-index: 100;
         }
 
         #pause-overlay.active { display: flex; }
 
-        #pause-overlay h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+        .milestone-title {
+            font-size: 3rem;
+            font-weight: 900;
             color: #e94560;
+            margin-bottom: 1rem;
+            animation: milestonePulse 0.5s ease-out;
         }
 
-        #pause-overlay p {
-            font-size: 1.2rem;
+        @keyframes milestonePulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .milestone-message {
+            font-size: 1.3rem;
             color: #aaa;
             text-align: center;
             line-height: 1.6;
             max-width: 400px;
+            margin-bottom: 0.5rem;
         }
 
-        #pause-overlay .countdown {
-            font-size: 3rem;
+        .milestone-detail {
+            font-size: 1.1rem;
+            color: #0f3460;
+            margin-bottom: 0.5rem;
+        }
+
+        .milestone-time-change {
+            font-size: 1rem;
+            color: #e94560;
+            margin-bottom: 2rem;
+        }
+
+        .milestone-countdown {
+            font-size: 4rem;
             font-weight: 900;
-            color: #fff;
-            margin-top: 1.5rem;
+            color: #0f3460;
         }
 
         .difficulty-selector {
@@ -340,60 +367,109 @@
             letter-spacing: 0.1em;
         }
 
-        .audio-indicator {
+        /* Enhanced speech mode UI */
+        .speech-ui {
             display: none;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
             margin-bottom: 1rem;
-            padding: 0.5rem 1rem;
-            background: rgba(233, 69, 96, 0.2);
-            border-radius: 8px;
-            color: #e94560;
-            font-size: 0.9rem;
         }
 
-        .audio-indicator.active { display: flex; }
+        .speech-ui.active {
+            display: flex;
+        }
+
+        .mic-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(232, 62, 140, 0.2);
+            border: 2px solid #e83e8c;
+            border-radius: 12px;
+            color: #e83e8c;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
 
         .mic-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             position: relative;
         }
 
         .mic-icon::before {
             content: '';
             position: absolute;
-            width: 10px;
-            height: 14px;
+            width: 12px;
+            height: 16px;
             background: currentColor;
-            border-radius: 5px;
-            left: 5px;
+            border-radius: 6px;
+            left: 6px;
             top: 0;
         }
 
         .mic-icon::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 8px;
+            width: 18px;
+            height: 10px;
             border: 2px solid currentColor;
             border-top: none;
-            border-radius: 0 0 8px 8px;
-            left: 2px;
-            top: 10px;
+            border-radius: 0 0 9px 9px;
+            left: 3px;
+            top: 12px;
         }
 
         .mic-icon.listening {
-            animation: pulse 1s ease-in-out infinite;
+            animation: micPulse 1s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @keyframes micPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .speech-prompt {
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: center;
+        }
+
+        .voice-feedback {
+            display: none;
+            color: #aaa;
+            font-size: 1rem;
+            min-height: 1.5em;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .voice-feedback.active { display: block; }
+
+        .speech-warning {
+            display: none;
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ff9800;
+            text-align: center;
+            max-width: 400px;
+            margin-bottom: 1rem;
+        }
+
+        .speech-warning.visible {
+            display: block;
         }
 
         @media (prefers-reduced-motion: reduce) {
             .mic-icon.listening {
+                animation: none;
+            }
+            .milestone-title {
                 animation: none;
             }
         }
@@ -421,16 +497,6 @@
         }
 
         .audio-warning.visible { display: block; }
-
-        .voice-feedback {
-            display: none;
-            color: #666;
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            min-height: 1.5em;
-        }
-
-        .voice-feedback.active { display: block; }
 
         .name-input-row {
             display: flex;
@@ -508,6 +574,247 @@
             font-size: 0.95rem;
             color: #aaa;
         }
+
+        /* Progress display on start screen */
+        .progress-display {
+            background: rgba(15, 52, 96, 0.3);
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            min-width: 280px;
+        }
+
+        .progress-title {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .progress-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .progress-stat-label {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Start screen buttons row */
+        .start-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        #stats-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #stats-btn:hover {
+            background: #0f3460;
+            color: #fff;
+        }
+
+        /* Statistics screen styles */
+        .stats-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #e94560;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-card {
+            background: rgba(15, 52, 96, 0.3);
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stats-card.wide {
+            grid-column: span 2;
+        }
+
+        .stats-card-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .stats-card-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.3rem;
+        }
+
+        .difficulty-stats {
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .difficulty-stats-title {
+            font-size: 1rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .difficulty-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .difficulty-stat-name {
+            color: #fff;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .difficulty-stat-data {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .language-stats {
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .language-stats-title {
+            font-size: 1rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .language-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .language-stat-name {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .language-stat-data {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .stats-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #close-stats-btn {
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #0f3460;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #close-stats-btn:hover {
+            background: #1a4a7a;
+        }
+
+        #reset-stats-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            background: transparent;
+            color: #e94560;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #reset-stats-btn:hover {
+            background: #e94560;
+            color: #fff;
+        }
+
+        /* Mobile responsive: ensure buttons fit on narrow screens */
+        @media (max-width: 420px) {
+            .buttons {
+                grid-template-columns: repeat(3, 1fr);
+                width: 100%;
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .color-btn {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .progress-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+
+            .progress-stat-value {
+                font-size: 1.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -518,6 +825,26 @@
         A colour word will appear on screen, but displayed in a <strong>different colour</strong>.<br><br>
         Your task: identify the <strong>colour of the text</strong>, not the word itself.
     </p>
+
+    <!-- Progress display on start screen -->
+    <div class="progress-display" id="progress-display">
+        <div class="progress-title" id="progress-title">Your Progress</div>
+        <div class="progress-stats">
+            <div class="progress-stat">
+                <div class="progress-stat-value" id="progress-best-score">0</div>
+                <div class="progress-stat-label" id="progress-best-label">Best Streak</div>
+            </div>
+            <div class="progress-stat">
+                <div class="progress-stat-value" id="progress-games">0</div>
+                <div class="progress-stat-label" id="progress-games-label">Games</div>
+            </div>
+            <div class="progress-stat">
+                <div class="progress-stat-value" id="progress-correct">0</div>
+                <div class="progress-stat-label" id="progress-correct-label">Correct</div>
+            </div>
+        </div>
+    </div>
+
     <div class="name-input-row">
         <label class="name-label" id="name-label" for="player-name">Your Name</label>
         <input type="text" id="player-name" maxlength="20" placeholder="Enter name...">
@@ -588,13 +915,23 @@
             <input type="range" id="min-time-slider" min="1" max="5" value="2" style="width:120px;margin-left:0.5rem">
         </div>
     </div>
-    <button id="start-btn">Start</button>
+    <div class="start-buttons">
+        <button id="start-btn">Start</button>
+        <button id="stats-btn">Statistics</button>
+    </div>
 </div>
 
 <div id="game-screen">
-    <div class="audio-indicator" id="audio-indicator">
-        <div class="mic-icon" id="mic-icon"></div>
-        <span id="audio-status" aria-live="polite" aria-atomic="true">Listening...</span>
+    <!-- Enhanced speech mode UI -->
+    <div class="speech-ui" id="speech-ui">
+        <div class="mic-indicator">
+            <div class="mic-icon" id="mic-icon"></div>
+            <span id="mic-status">Listening...</span>
+        </div>
+        <div class="speech-prompt" id="speech-prompt">Say the colour!</div>
+    </div>
+    <div class="speech-warning" id="speech-warning">
+        Voice input requires a browser with Web Speech API support (Chrome, Edge) and microphone permission.
     </div>
     <div class="prompt-label" id="prompt-label">What colour is the text?</div>
     <div id="color-word">RED</div>
@@ -611,10 +948,48 @@
     </div>
 </div>
 
+<!-- Enhanced milestone overlay with animations -->
 <div id="pause-overlay">
-    <h2 id="level-up-text">Level Up!</h2>
-    <p id="pause-message"></p>
-    <div class="countdown" id="pause-countdown">5</div>
+    <div class="milestone-title" id="milestone-title">Milestone!</div>
+    <div class="milestone-message" id="milestone-message"></div>
+    <div class="milestone-detail" id="milestone-detail"></div>
+    <div class="milestone-time-change" id="milestone-time-change"></div>
+    <div class="milestone-countdown" id="milestone-countdown">3</div>
+</div>
+
+<!-- Statistics screen -->
+<div id="stats-screen">
+    <div class="stats-title" id="stats-title">Statistics</div>
+    <div class="stats-grid">
+        <div class="stats-card">
+            <div class="stats-card-value" id="stats-total-correct">0</div>
+            <div class="stats-card-label" id="stats-total-label">Total Correct</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-card-value" id="stats-games-played">0</div>
+            <div class="stats-card-label" id="stats-games-label">Games Played</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-card-value" id="stats-best-streak">0</div>
+            <div class="stats-card-label" id="stats-best-label">Best Streak</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-card-value" id="stats-avg-time">0.0s</div>
+            <div class="stats-card-label" id="stats-avg-label">Avg Response</div>
+        </div>
+    </div>
+    <div class="difficulty-stats">
+        <div class="difficulty-stats-title" id="difficulty-stats-title">Best Streak by Difficulty</div>
+        <div id="difficulty-stats-list"></div>
+    </div>
+    <div class="language-stats">
+        <div class="language-stats-title" id="language-stats-title">By Language</div>
+        <div id="language-stats-list"></div>
+    </div>
+    <div class="stats-buttons">
+        <button id="close-stats-btn">Close</button>
+        <button id="reset-stats-btn">Reset Statistics</button>
+    </div>
 </div>
 
 <div id="end-screen">
@@ -667,6 +1042,12 @@
             red: 'Rot', green: 'Grun', blue: 'Blau', grey: 'Grau', yellow: 'Gelb',
             orange: 'Orange', pink: 'Rosa', purple: 'Lila', brown: 'Braun'
         }
+    };
+
+    // Language display names
+    const LANGUAGE_NAMES = {
+        en: 'English', cy: 'Welsh', it: 'Italian',
+        es: 'Spanish', fr: 'French', de: 'German'
     };
 
     // Aliases for voice recognition to handle accents and pronunciation variations
@@ -747,6 +1128,7 @@
             language: 'Language',
             easy: 'Easy', medium: 'Medium', hard: 'Hard', custom: 'Custom',
             start: 'Start',
+            statistics: 'Statistics',
             voiceMode: 'Voice input mode (say the colour)',
             voiceWarning: 'Voice input requires Chrome or Edge browser and microphone permission.',
             showLabels: 'Show labels on buttons',
@@ -757,7 +1139,8 @@
             time: 'Time',
             minTime: 'Min time',
             prompt: 'What colour is the text?',
-            levelUp: 'Level Up!',
+            sayColour: 'Say the colour!',
+            milestone: 'Milestone!',
             gameOver: 'Game Over',
             streak: 'streak',
             avgResponse: 'avg response time',
@@ -785,7 +1168,20 @@
             enterName: 'Enter name...',
             newPersonalBest: 'New Personal Best!',
             yourGoal: 'Your goal',
-            previousBest: 'Previous best'
+            previousBest: 'Previous best',
+            yourProgress: 'Your Progress',
+            bestStreak: 'Best Streak',
+            games: 'Games',
+            correct: 'Correct',
+            totalCorrect: 'Total Correct',
+            gamesPlayed: 'Games Played',
+            avgResponseTime: 'Avg Response',
+            bestByDifficulty: 'Best Streak by Difficulty',
+            byLanguage: 'By Language',
+            close: 'Close',
+            resetStats: 'Reset Statistics',
+            noGamesYet: 'No games yet',
+            confirmReset: 'Are you sure you want to reset all statistics? This cannot be undone.'
         },
         cy: {
             title: 'Waffle',
@@ -793,8 +1189,9 @@
             language: 'Iaith',
             easy: 'Hawdd', medium: 'Canolig', hard: 'Anodd', custom: 'Arferol',
             start: 'Dechrau',
+            statistics: 'Ystadegau',
             voiceMode: 'Modd llais (dywedwch y lliw)',
-            voiceWarning: 'Mae angen Chrome neu Edge a chaniatâd meicroffon.',
+            voiceWarning: 'Mae angen Chrome neu Edge a chaniatad meicroffon.',
             showLabels: 'Dangos labeli ar fotymau',
             shuffleButtons: 'Cymysgu botymau bob 10 ateb',
             shuffleEvery: 'Cymysgu bob ateb',
@@ -803,8 +1200,9 @@
             time: 'Amser',
             minTime: 'Amser lleiaf',
             prompt: 'Pa liw yw\'r testun?',
-            levelUp: 'Lefel Lan!',
-            gameOver: 'Gêm Drosodd',
+            sayColour: 'Dywedwch y lliw!',
+            milestone: 'Carreg Filltir!',
+            gameOver: 'Gem Drosodd',
             streak: 'rhediad',
             avgResponse: 'amser ymateb cyfartalog',
             playAgain: 'Chwarae Eto',
@@ -831,62 +1229,91 @@
             enterName: 'Rhowch enw...',
             newPersonalBest: 'Record Personol Newydd!',
             yourGoal: 'Eich nod',
-            previousBest: 'Gorau blaenorol'
+            previousBest: 'Gorau blaenorol',
+            yourProgress: 'Eich Cynnydd',
+            bestStreak: 'Rhediad Gorau',
+            games: 'Gemau',
+            correct: 'Cywir',
+            totalCorrect: 'Cyfanswm Cywir',
+            gamesPlayed: 'Gemau Chwaraewyd',
+            avgResponseTime: 'Amser Cyfartalog',
+            bestByDifficulty: 'Gorau yn ol Anhawster',
+            byLanguage: 'Yn ol Iaith',
+            close: 'Cau',
+            resetStats: 'Ailosod Ystadegau',
+            noGamesYet: 'Dim gemau eto',
+            confirmReset: 'Ydych chi\'n siwr eich bod am ailosod yr holl ystadegau?'
         },
         es: {
             title: 'Waffle',
-            instructions: 'Una palabra de color aparecerá en pantalla, pero mostrada en un <strong>color diferente</strong>.<br><br>Tu tarea: identificar el <strong>color del texto</strong>, no la palabra en sí.',
+            instructions: 'Una palabra de color aparecera en pantalla, pero mostrada en un <strong>color diferente</strong>.<br><br>Tu tarea: identificar el <strong>color del texto</strong>, no la palabra en si.',
             language: 'Idioma',
-            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', custom: 'Personalizado',
+            easy: 'Facil', medium: 'Medio', hard: 'Dificil', custom: 'Personalizado',
             start: 'Empezar',
+            statistics: 'Estadisticas',
             voiceMode: 'Modo de voz (di el color)',
-            voiceWarning: 'El modo de voz requiere Chrome o Edge y permiso de micrófono.',
+            voiceWarning: 'El modo de voz requiere Chrome o Edge y permiso de microfono.',
             showLabels: 'Mostrar etiquetas en botones',
             shuffleButtons: 'Mezclar botones cada 10 respuestas',
             shuffleEvery: 'Mezclar en cada respuesta',
             noFill: 'Quitar color de fondo de botones',
             colours: 'Colores',
             time: 'Tiempo',
-            minTime: 'Tiempo mín',
-            prompt: '¿De qué color es el texto?',
-            levelUp: '¡Subiste de nivel!',
+            minTime: 'Tiempo min',
+            prompt: 'De que color es el texto?',
+            sayColour: 'Di el color!',
+            milestone: 'Hito!',
             gameOver: 'Fin del juego',
             streak: 'racha',
             avgResponse: 'tiempo de respuesta promedio',
             playAgain: 'Jugar de nuevo',
-            timeRanOut: '¡Se acabó el tiempo!',
+            timeRanOut: 'Se acabo el tiempo!',
             answerWas: 'La respuesta era',
-            niceWork: '¡Buen trabajo!',
-            inARow: '¡seguidas!',
+            niceWork: 'Buen trabajo!',
+            inARow: 'seguidas!',
             timeNow: 'El tiempo por ronda ahora es',
             second: 'segundo',
             seconds: 'segundos',
-            buttonsShuffled: '¡Botones mezclados!',
-            youWin: '¡Ganaste!',
-            winMessage: '¡Completaste el desafío definitivo a 0.2 segundos por ronda!',
-            finalChallenge: '¡Desafío final! 0.2 segundos por ronda.',
-            easyInfo: 'Etiquetas, 10s temporizador, mín 2s',
+            buttonsShuffled: 'Botones mezclados!',
+            youWin: 'Ganaste!',
+            winMessage: 'Completaste el desafio definitivo a 0.2 segundos por ronda!',
+            finalChallenge: 'Desafio final! 0.2 segundos por ronda.',
+            easyInfo: 'Etiquetas, 10s temporizador, min 2s',
             mediumInfo: 'Sin etiquetas, mezclar cada 10, 8s temporizador',
-            hardInfo: 'Sin color, mezclar cada respuesta, 6s temporizador, mín 1s',
+            hardInfo: 'Sin color, mezclar cada respuesta, 6s temporizador, min 1s',
             customInfo: 'Configura tus propios ajustes',
             listening: 'Escuchando...',
-            noSpeech: 'No se detectó voz...',
-            micBlocked: 'Micrófono bloqueado',
+            noSpeech: 'No se detecto voz...',
+            micBlocked: 'Microfono bloqueado',
             heard: 'Escuchado',
             yourName: 'Tu Nombre',
             enterName: 'Ingresa nombre...',
-            newPersonalBest: 'Nuevo Récord Personal!',
+            newPersonalBest: 'Nuevo Record Personal!',
             yourGoal: 'Tu meta',
-            previousBest: 'Mejor anterior'
+            previousBest: 'Mejor anterior',
+            yourProgress: 'Tu Progreso',
+            bestStreak: 'Mejor Racha',
+            games: 'Juegos',
+            correct: 'Correctas',
+            totalCorrect: 'Total Correctas',
+            gamesPlayed: 'Juegos Jugados',
+            avgResponseTime: 'Tiempo Promedio',
+            bestByDifficulty: 'Mejor Racha por Dificultad',
+            byLanguage: 'Por Idioma',
+            close: 'Cerrar',
+            resetStats: 'Reiniciar Estadisticas',
+            noGamesYet: 'Sin juegos aun',
+            confirmReset: 'Estas seguro de que quieres reiniciar todas las estadisticas?'
         },
         it: {
             title: 'Waffle',
-            instructions: 'Una parola di colore apparirà sullo schermo, ma visualizzata in un <strong>colore diverso</strong>.<br><br>Il tuo compito: identificare il <strong>colore del testo</strong>, non la parola stessa.',
+            instructions: 'Una parola di colore apparira sullo schermo, ma visualizzata in un <strong>colore diverso</strong>.<br><br>Il tuo compito: identificare il <strong>colore del testo</strong>, non la parola stessa.',
             language: 'Lingua',
             easy: 'Facile', medium: 'Medio', hard: 'Difficile', custom: 'Personalizzato',
             start: 'Inizia',
-            voiceMode: 'Modalità vocale (pronuncia il colore)',
-            voiceWarning: 'La modalità vocale richiede Chrome o Edge e il permesso del microfono.',
+            statistics: 'Statistiche',
+            voiceMode: 'Modalita vocale (pronuncia il colore)',
+            voiceWarning: 'La modalita vocale richiede Chrome o Edge e il permesso del microfono.',
             showLabels: 'Mostra etichette sui pulsanti',
             shuffleButtons: 'Mescola i pulsanti ogni 10 risposte',
             shuffleEvery: 'Mescola ad ogni risposta',
@@ -894,8 +1321,9 @@
             colours: 'Colori',
             time: 'Tempo',
             minTime: 'Tempo min',
-            prompt: 'Di che colore è il testo?',
-            levelUp: 'Livello Su!',
+            prompt: 'Di che colore e il testo?',
+            sayColour: 'Pronuncia il colore!',
+            milestone: 'Traguardo!',
             gameOver: 'Partita Finita',
             streak: 'serie',
             avgResponse: 'tempo di risposta medio',
@@ -904,7 +1332,7 @@
             answerWas: 'La risposta era',
             niceWork: 'Ben fatto!',
             inARow: 'di fila!',
-            timeNow: 'Il tempo per round ora è',
+            timeNow: 'Il tempo per round ora e',
             second: 'secondo',
             seconds: 'secondi',
             buttonsShuffled: 'Pulsanti mescolati!',
@@ -923,53 +1351,81 @@
             enterName: 'Inserisci nome...',
             newPersonalBest: 'Nuovo Record Personale!',
             yourGoal: 'Il tuo obiettivo',
-            previousBest: 'Miglior precedente'
+            previousBest: 'Miglior precedente',
+            yourProgress: 'I Tuoi Progressi',
+            bestStreak: 'Miglior Serie',
+            games: 'Partite',
+            correct: 'Corrette',
+            totalCorrect: 'Totale Corrette',
+            gamesPlayed: 'Partite Giocate',
+            avgResponseTime: 'Tempo Medio',
+            bestByDifficulty: 'Miglior Serie per Difficolta',
+            byLanguage: 'Per Lingua',
+            close: 'Chiudi',
+            resetStats: 'Reimposta Statistiche',
+            noGamesYet: 'Nessuna partita ancora',
+            confirmReset: 'Sei sicuro di voler reimpostare tutte le statistiche?'
         },
         fr: {
             title: 'Waffle',
-            instructions: 'Un mot de couleur apparaîtra à l\'écran, mais affiché dans une <strong>couleur différente</strong>.<br><br>Votre tâche : identifier la <strong>couleur du texte</strong>, pas le mot lui-même.',
+            instructions: 'Un mot de couleur apparaitra a l\'ecran, mais affiche dans une <strong>couleur differente</strong>.<br><br>Votre tache : identifier la <strong>couleur du texte</strong>, pas le mot lui-meme.',
             language: 'Langue',
-            easy: 'Facile', medium: 'Moyen', hard: 'Difficile', custom: 'Personnalisé',
+            easy: 'Facile', medium: 'Moyen', hard: 'Difficile', custom: 'Personnalise',
             start: 'Commencer',
+            statistics: 'Statistiques',
             voiceMode: 'Mode vocal (prononcez la couleur)',
-            voiceWarning: 'Le mode vocal nécessite Chrome ou Edge et l\'autorisation du microphone.',
-            showLabels: 'Afficher les étiquettes sur les boutons',
-            shuffleButtons: 'Mélanger les boutons toutes les 10 réponses',
-            shuffleEvery: 'Mélanger à chaque réponse',
+            voiceWarning: 'Le mode vocal necessite Chrome ou Edge et l\'autorisation du microphone.',
+            showLabels: 'Afficher les etiquettes sur les boutons',
+            shuffleButtons: 'Melanger les boutons toutes les 10 reponses',
+            shuffleEvery: 'Melanger a chaque reponse',
             noFill: 'Supprimer la couleur de fond des boutons',
             colours: 'Couleurs',
             time: 'Temps',
             minTime: 'Temps min',
             prompt: 'De quelle couleur est le texte ?',
-            levelUp: 'Niveau Supérieur !',
-            gameOver: 'Partie Terminée',
-            streak: 'série',
-            avgResponse: 'temps de réponse moyen',
+            sayColour: 'Dites la couleur !',
+            milestone: 'Jalon !',
+            gameOver: 'Partie Terminee',
+            streak: 'serie',
+            avgResponse: 'temps de reponse moyen',
             playAgain: 'Rejouer',
-            timeRanOut: 'Temps écoulé !',
-            answerWas: 'La réponse était',
-            niceWork: 'Bien joué !',
-            inARow: 'd\'affilée !',
+            timeRanOut: 'Temps ecoule !',
+            answerWas: 'La reponse etait',
+            niceWork: 'Bien joue !',
+            inARow: 'd\'affilee !',
             timeNow: 'Le temps par manche est maintenant',
             second: 'seconde',
             seconds: 'secondes',
-            buttonsShuffled: 'Boutons mélangés !',
-            youWin: 'Vous Avez Gagné !',
-            winMessage: 'Vous avez complété le défi ultime à 0.2 secondes par manche !',
-            finalChallenge: 'Défi final ! 0.2 secondes par manche.',
-            easyInfo: 'Étiquettes, chrono 10s, min 2s',
-            mediumInfo: 'Sans étiquettes, mélange tous les 10, chrono 8s',
-            hardInfo: 'Sans couleur, mélange chaque réponse, chrono 6s, min 1s',
-            customInfo: 'Configurez vos paramètres',
-            listening: 'Écoute en cours...',
-            noSpeech: 'Aucune parole détectée...',
-            micBlocked: 'Microphone bloqué',
+            buttonsShuffled: 'Boutons melanges !',
+            youWin: 'Vous Avez Gagne !',
+            winMessage: 'Vous avez complete le defi ultime a 0.2 secondes par manche !',
+            finalChallenge: 'Defi final ! 0.2 secondes par manche.',
+            easyInfo: 'Etiquettes, chrono 10s, min 2s',
+            mediumInfo: 'Sans etiquettes, melange tous les 10, chrono 8s',
+            hardInfo: 'Sans couleur, melange chaque reponse, chrono 6s, min 1s',
+            customInfo: 'Configurez vos parametres',
+            listening: 'Ecoute en cours...',
+            noSpeech: 'Aucune parole detectee...',
+            micBlocked: 'Microphone bloque',
             heard: 'Entendu',
             yourName: 'Votre Nom',
             enterName: 'Entrez votre nom...',
             newPersonalBest: 'Nouveau Record Personnel !',
             yourGoal: 'Votre objectif',
-            previousBest: 'Meilleur précédent'
+            previousBest: 'Meilleur precedent',
+            yourProgress: 'Votre Progression',
+            bestStreak: 'Meilleure Serie',
+            games: 'Parties',
+            correct: 'Correctes',
+            totalCorrect: 'Total Correctes',
+            gamesPlayed: 'Parties Jouees',
+            avgResponseTime: 'Temps Moyen',
+            bestByDifficulty: 'Meilleure Serie par Difficulte',
+            byLanguage: 'Par Langue',
+            close: 'Fermer',
+            resetStats: 'Reinitialiser Statistiques',
+            noGamesYet: 'Pas encore de parties',
+            confirmReset: 'Etes-vous sur de vouloir reinitialiser toutes les statistiques ?'
         },
         de: {
             title: 'Waffle',
@@ -977,17 +1433,19 @@
             language: 'Sprache',
             easy: 'Leicht', medium: 'Mittel', hard: 'Schwer', custom: 'Benutzerdefiniert',
             start: 'Start',
+            statistics: 'Statistiken',
             voiceMode: 'Sprachmodus (sagen Sie die Farbe)',
             voiceWarning: 'Der Sprachmodus erfordert Chrome oder Edge und Mikrofonberechtigung.',
-            showLabels: 'Beschriftungen auf Schaltflächen anzeigen',
-            shuffleButtons: 'Schaltflächen alle 10 Antworten mischen',
+            showLabels: 'Beschriftungen auf Schaltflachen anzeigen',
+            shuffleButtons: 'Schaltflachen alle 10 Antworten mischen',
             shuffleEvery: 'Bei jeder Antwort mischen',
-            noFill: 'Hintergrundfarbe von Schaltflächen entfernen',
+            noFill: 'Hintergrundfarbe von Schaltflachen entfernen',
             colours: 'Farben',
             time: 'Zeit',
             minTime: 'Min. Zeit',
             prompt: 'Welche Farbe hat der Text?',
-            levelUp: 'Level Up!',
+            sayColour: 'Sagen Sie die Farbe!',
+            milestone: 'Meilenstein!',
             gameOver: 'Spiel Vorbei',
             streak: 'Serie',
             avgResponse: 'durchschnittliche Antwortzeit',
@@ -999,7 +1457,7 @@
             timeNow: 'Zeit pro Runde ist jetzt',
             second: 'Sekunde',
             seconds: 'Sekunden',
-            buttonsShuffled: 'Schaltflächen gemischt!',
+            buttonsShuffled: 'Schaltflachen gemischt!',
             youWin: 'Sie Haben Gewonnen!',
             winMessage: 'Sie haben die ultimative Herausforderung bei 0,2 Sekunden pro Runde geschafft!',
             finalChallenge: 'Letzte Herausforderung! 0,2 Sekunden pro Runde.',
@@ -1007,15 +1465,28 @@
             mediumInfo: 'Keine Beschriftungen, mischen alle 10, 8s Timer',
             hardInfo: 'Keine Farbe, mischen jede Antwort, 6s Timer, min 1s',
             customInfo: 'Eigene Einstellungen konfigurieren',
-            listening: 'Höre zu...',
+            listening: 'Hore zu...',
             noSpeech: 'Keine Sprache erkannt...',
             micBlocked: 'Mikrofon blockiert',
-            heard: 'Gehört',
+            heard: 'Gehort',
             yourName: 'Ihr Name',
             enterName: 'Name eingeben...',
-            newPersonalBest: 'Neuer Persönlicher Rekord!',
+            newPersonalBest: 'Neuer Personlicher Rekord!',
             yourGoal: 'Ihr Ziel',
-            previousBest: 'Vorheriger Bestwert'
+            previousBest: 'Vorheriger Bestwert',
+            yourProgress: 'Ihr Fortschritt',
+            bestStreak: 'Beste Serie',
+            games: 'Spiele',
+            correct: 'Richtig',
+            totalCorrect: 'Gesamt Richtig',
+            gamesPlayed: 'Gespielte Spiele',
+            avgResponseTime: 'Durchschn. Zeit',
+            bestByDifficulty: 'Beste Serie nach Schwierigkeit',
+            byLanguage: 'Nach Sprache',
+            close: 'Schliessen',
+            resetStats: 'Statistiken Zurucksetzen',
+            noGamesYet: 'Noch keine Spiele',
+            confirmReset: 'Sind Sie sicher, dass Sie alle Statistiken zurucksetzen mochten?'
         }
     };
 
@@ -1085,13 +1556,16 @@
     let inFractionalPhase = false;
     const ABSOLUTE_MIN_TIME = 200; // 0.2 seconds - the win condition threshold
 
-    // Leaderboard variables
+    // Player and statistics data
     let playerName = localStorage.getItem('wafflePlayerName') || '';
     let leaderboardData = {};
+    let stats = loadStats();
 
+    // ========== DOM ELEMENTS ==========
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
     const endScreen = document.getElementById('end-screen');
+    const statsScreen = document.getElementById('stats-screen');
     const colorWord = document.getElementById('color-word');
     const timerBar = document.getElementById('timer-bar');
     const finalScore = document.getElementById('final-score');
@@ -1099,18 +1573,174 @@
     const buttons = document.querySelectorAll('.color-btn');
     const buttonsContainer = document.querySelector('.buttons');
     const pauseOverlay = document.getElementById('pause-overlay');
-    const pauseMessage = document.getElementById('pause-message');
-    const pauseCountdown = document.getElementById('pause-countdown');
+    const milestoneTitle = document.getElementById('milestone-title');
+    const milestoneMessage = document.getElementById('milestone-message');
+    const milestoneDetail = document.getElementById('milestone-detail');
+    const milestoneTimeChange = document.getElementById('milestone-time-change');
+    const milestoneCountdown = document.getElementById('milestone-countdown');
     const difficultyBtns = document.querySelectorAll('.difficulty-btn');
     const difficultyInfo = document.getElementById('difficulty-info');
     const customToggles = document.getElementById('custom-toggles');
     const languageBtns = document.querySelectorAll('.language-btn');
     const voiceModeToggle = document.getElementById('voice-mode');
     const audioWarning = document.getElementById('audio-warning');
-    const audioIndicator = document.getElementById('audio-indicator');
+    const speechUI = document.getElementById('speech-ui');
     const micIcon = document.getElementById('mic-icon');
-    const audioStatus = document.getElementById('audio-status');
+    const micStatus = document.getElementById('mic-status');
+    const speechPrompt = document.getElementById('speech-prompt');
     const voiceFeedback = document.getElementById('voice-feedback');
+    const speechWarning = document.getElementById('speech-warning');
+    const promptLabel = document.getElementById('prompt-label');
+
+    // ========== STATISTICS SYSTEM ==========
+
+    function loadStats() {
+        const saved = localStorage.getItem('waffle_stats');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return getDefaultStats();
+            }
+        }
+        return getDefaultStats();
+    }
+
+    function getDefaultStats() {
+        return {
+            totalCorrect: 0,
+            gamesPlayed: 0,
+            bestStreak: 0,
+            totalResponseTime: 0,
+            totalResponses: 0,
+            difficultyStats: {},
+            languageStats: {}
+        };
+    }
+
+    function saveStats() {
+        localStorage.setItem('waffle_stats', JSON.stringify(stats));
+    }
+
+    function updateStatsAfterGame(sessionScore, avgResponseTime, language, difficulty) {
+        stats.gamesPlayed++;
+        stats.totalCorrect += sessionScore;
+
+        if (sessionScore > stats.bestStreak) {
+            stats.bestStreak = sessionScore;
+        }
+
+        // Track response times for average
+        if (responseTimes.length > 0) {
+            stats.totalResponseTime += responseTimes.reduce((a, b) => a + b, 0);
+            stats.totalResponses += responseTimes.length;
+        }
+
+        // Track by difficulty
+        if (!stats.difficultyStats[difficulty]) {
+            stats.difficultyStats[difficulty] = { bestStreak: 0, games: 0 };
+        }
+        stats.difficultyStats[difficulty].games++;
+        if (sessionScore > stats.difficultyStats[difficulty].bestStreak) {
+            stats.difficultyStats[difficulty].bestStreak = sessionScore;
+        }
+
+        // Track by language
+        if (!stats.languageStats[language]) {
+            stats.languageStats[language] = { correct: 0, games: 0 };
+        }
+        stats.languageStats[language].games++;
+        stats.languageStats[language].correct += sessionScore;
+
+        saveStats();
+    }
+
+    function resetStats() {
+        stats = getDefaultStats();
+        saveStats();
+        updateProgressDisplay();
+        updateStatsDisplay();
+    }
+
+    function updateProgressDisplay() {
+        const bestScore = stats.difficultyStats[selectedDifficulty]?.bestStreak || 0;
+        document.getElementById('progress-best-score').textContent = bestScore;
+        document.getElementById('progress-games').textContent = stats.gamesPlayed;
+        document.getElementById('progress-correct').textContent = stats.totalCorrect;
+    }
+
+    function updateStatsDisplay() {
+        document.getElementById('stats-total-correct').textContent = stats.totalCorrect;
+        document.getElementById('stats-games-played').textContent = stats.gamesPlayed;
+        document.getElementById('stats-best-streak').textContent = stats.bestStreak;
+
+        const avgTime = stats.totalResponses > 0
+            ? (stats.totalResponseTime / stats.totalResponses / 1000).toFixed(1)
+            : '0.0';
+        document.getElementById('stats-avg-time').textContent = avgTime + 's';
+
+        // Difficulty stats
+        const diffList = document.getElementById('difficulty-stats-list');
+        diffList.innerHTML = '';
+        ['easy', 'medium', 'hard', 'custom'].forEach(diff => {
+            const diffStats = stats.difficultyStats[diff];
+            const row = document.createElement('div');
+            row.className = 'difficulty-stat-row';
+
+            const name = document.createElement('span');
+            name.className = 'difficulty-stat-name';
+            name.textContent = getUIText(diff);
+
+            const data = document.createElement('span');
+            data.className = 'difficulty-stat-data';
+            if (diffStats && diffStats.games > 0) {
+                data.textContent = `${diffStats.bestStreak} (${diffStats.games} ${getUIText('games').toLowerCase()})`;
+            } else {
+                data.textContent = getUIText('noGamesYet');
+            }
+
+            row.appendChild(name);
+            row.appendChild(data);
+            diffList.appendChild(row);
+        });
+
+        // Language stats
+        const langList = document.getElementById('language-stats-list');
+        langList.innerHTML = '';
+        Object.keys(LANGUAGE_NAMES).forEach(lang => {
+            const langStats = stats.languageStats[lang];
+            const row = document.createElement('div');
+            row.className = 'language-stat-row';
+
+            const name = document.createElement('span');
+            name.className = 'language-stat-name';
+            name.textContent = LANGUAGE_NAMES[lang];
+
+            const data = document.createElement('span');
+            data.className = 'language-stat-data';
+            if (langStats && langStats.games > 0) {
+                const avg = Math.round(langStats.correct / langStats.games);
+                data.textContent = `${langStats.correct} ${getUIText('correct').toLowerCase()} (avg ${avg})`;
+            } else {
+                data.textContent = getUIText('noGamesYet');
+            }
+
+            row.appendChild(name);
+            row.appendChild(data);
+            langList.appendChild(row);
+        });
+    }
+
+    function showStats() {
+        updateStatsDisplay();
+        show(statsScreen);
+    }
+
+    function hideStats() {
+        show(startScreen);
+    }
+
+    // ========== SPEECH RECOGNITION ==========
 
     // Check for Web Speech API support
     const speechSupported = !!SpeechRecognition;
@@ -1129,15 +1759,6 @@
         }
     });
 
-    document.getElementById('start-btn').addEventListener('click', startGame);
-    document.getElementById('restart-btn').addEventListener('click', () => {
-        // Reset buttons visibility for next game
-        buttonsContainer.style.display = 'grid';
-        show(startScreen);
-    });
-    buttons.forEach(btn => btn.addEventListener('click', () => handleAnswer(btn.dataset.color)));
-
-    // Initialize speech recognition
     function initSpeechRecognition() {
         if (!speechSupported) return null;
 
@@ -1147,14 +1768,14 @@
         recog.lang = getSpeechLangCode();
 
         recog.onresult = (event) => {
+            if (pauseOverlay.classList.contains('active')) return;
+
             const result = event.results[event.results.length - 1];
             const transcript = result[0].transcript.toLowerCase().trim();
             const lastWord = transcript.split(' ').pop();
 
-            // Show what was heard
             voiceFeedback.textContent = `${getUIText('heard')}: "${lastWord}"`;
 
-            // Check if final result
             if (result.isFinal) {
                 const matchedColor = matchColorFromSpeech(lastWord);
                 if (matchedColor) {
@@ -1166,16 +1787,17 @@
         recog.onerror = (event) => {
             console.log('Speech recognition error:', event.error);
             if (event.error === 'no-speech') {
-                audioStatus.textContent = getUIText('noSpeech');
+                micStatus.textContent = getUIText('noSpeech');
             } else if (event.error === 'not-allowed') {
-                audioStatus.textContent = getUIText('micBlocked');
+                micStatus.textContent = getUIText('micBlocked');
                 stopListening();
+                showSpeechFallback();
             }
         };
 
         recog.onend = () => {
             isListening = false;
-            // Restart if still in voice mode and game is active
+            micIcon.classList.remove('listening');
             if (voiceModeEnabled && gameScreen.classList.contains('active') && !pauseOverlay.classList.contains('active')) {
                 setTimeout(() => {
                     if (voiceModeEnabled && gameScreen.classList.contains('active') && !isListening) {
@@ -1204,11 +1826,12 @@
     function startListening() {
         if (!recognition || isListening) return;
         try {
+            recognition.lang = getSpeechLangCode();
             recognition.start();
             isListening = true;
-            audioIndicator.classList.add('active');
+            speechUI.classList.add('active');
             micIcon.classList.add('listening');
-            audioStatus.textContent = getUIText('listening');
+            micStatus.textContent = getUIText('listening');
             voiceFeedback.classList.add('active');
             voiceFeedback.textContent = '';
         } catch (e) {
@@ -1224,12 +1847,36 @@
             // ignore
         }
         isListening = false;
-        audioIndicator.classList.remove('active');
+        speechUI.classList.remove('active');
         micIcon.classList.remove('listening');
         voiceFeedback.classList.remove('active');
     }
 
-    // Force labels on when no-colour-fill is enabled (otherwise game is impossible)
+    function showSpeechFallback() {
+        speechWarning.classList.add('visible');
+        speechUI.classList.remove('active');
+        buttonsContainer.style.display = 'grid';
+        promptLabel.style.display = 'block';
+    }
+
+    // ========== EVENT LISTENERS ==========
+
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        buttonsContainer.style.display = 'grid';
+        updateProgressDisplay();
+        show(startScreen);
+    });
+    document.getElementById('stats-btn').addEventListener('click', showStats);
+    document.getElementById('close-stats-btn').addEventListener('click', hideStats);
+    document.getElementById('reset-stats-btn').addEventListener('click', () => {
+        if (confirm(getUIText('confirmReset'))) {
+            resetStats();
+        }
+    });
+    buttons.forEach(btn => btn.addEventListener('click', () => handleAnswer(btn.dataset.color)));
+
+    // Force labels on when no-colour-fill is enabled
     const noColourFillCheckbox = document.getElementById('no-colour-fill');
     const showLabelsCheckbox = document.getElementById('show-labels');
     const showLabelsRow = showLabelsCheckbox.closest('.toggle-row');
@@ -1253,14 +1900,13 @@
         if (label) label.textContent = colourCount;
     });
 
-    // Time limit slider
+    // Time limit sliders
     const timeLimitSlider = document.getElementById('time-limit-slider');
     const minTimeSlider = document.getElementById('min-time-slider');
 
     timeLimitSlider.addEventListener('input', () => {
         customTimeLimit = parseInt(timeLimitSlider.value);
         document.getElementById('time-limit-label').textContent = customTimeLimit;
-        // Ensure min time doesn't exceed time limit
         if (customMinTime > customTimeLimit) {
             customMinTime = customTimeLimit;
             minTimeSlider.value = customMinTime;
@@ -1282,72 +1928,11 @@
             selectedLanguage = btn.dataset.lang;
             localStorage.setItem('stroopLanguage', selectedLanguage);
             applyUITranslations();
+            updateProgressDisplay();
         });
     });
 
-    // Get UI text for current language (falls back to English)
-    function getUIText(key) {
-        const lang = UI_TRANSLATIONS[selectedLanguage] ? selectedLanguage : 'en';
-        return UI_TRANSLATIONS[lang][key] || UI_TRANSLATIONS.en[key];
-    }
-
-    // Apply UI translations to the page
-    function applyUITranslations() {
-        document.getElementById('game-title').textContent = getUIText('title');
-        document.getElementById('instructions-text').innerHTML = getUIText('instructions');
-        document.getElementById('name-label').textContent = getUIText('yourName');
-        document.getElementById('player-name').placeholder = getUIText('enterName');
-        document.getElementById('language-label').textContent = getUIText('language');
-        document.getElementById('start-btn').textContent = getUIText('start');
-        document.getElementById('label-voice-mode').textContent = getUIText('voiceMode');
-        document.getElementById('audio-warning').textContent = getUIText('voiceWarning');
-        document.getElementById('label-show-labels').textContent = getUIText('showLabels');
-        document.getElementById('label-shuffle-buttons').textContent = getUIText('shuffleButtons');
-        document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
-        document.getElementById('label-no-fill').textContent = getUIText('noFill');
-        document.getElementById('label-colours').innerHTML = getUIText('colours') + ': <span id="colour-count-label">' + colourCount + '</span>';
-        document.getElementById('label-time').innerHTML = getUIText('time') + ': <span id="time-limit-label">' + customTimeLimit + '</span>s';
-        document.getElementById('label-min-time').innerHTML = getUIText('minTime') + ': <span id="min-time-label">' + customMinTime + '</span>s';
-        document.getElementById('prompt-label').textContent = getUIText('prompt');
-        document.getElementById('level-up-text').textContent = getUIText('levelUp');
-        document.getElementById('game-over-text').textContent = getUIText('gameOver');
-        document.getElementById('streak-label').textContent = getUIText('streak');
-        document.getElementById('avg-label').textContent = getUIText('avgResponse');
-        document.getElementById('restart-btn').textContent = getUIText('playAgain');
-
-        // Update difficulty buttons
-        document.querySelectorAll('.difficulty-btn').forEach(btn => {
-            const key = btn.dataset.difficulty;
-            btn.textContent = getUIText(key);
-        });
-
-        // Update difficulty info if not custom
-        if (selectedDifficulty !== 'custom') {
-            difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
-        } else {
-            difficultyInfo.textContent = getUIText('customInfo');
-        }
-    }
-
-    // Restore saved language on page load
-    function initLanguageSelection() {
-        languageBtns.forEach(btn => {
-            btn.classList.toggle('selected', btn.dataset.lang === selectedLanguage);
-        });
-        applyUITranslations();
-    }
-    initLanguageSelection();
-
-    // Get translated colour name
-    function getTranslatedColour(color) {
-        return TRANSLATIONS[selectedLanguage][color] || TRANSLATIONS.en[color];
-    }
-
-    // Get speech recognition language code
-    function getSpeechLangCode() {
-        return SPEECH_LANG_CODES[selectedLanguage] || 'en-GB';
-    }
-
+    // Difficulty selection
     difficultyBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             difficultyBtns.forEach(b => b.classList.remove('selected'));
@@ -1361,13 +1946,92 @@
                 customToggles.classList.remove('visible');
                 difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
             }
+            updateProgressDisplay();
         });
     });
 
+    // ========== UI FUNCTIONS ==========
+
+    function getUIText(key) {
+        const lang = UI_TRANSLATIONS[selectedLanguage] ? selectedLanguage : 'en';
+        return UI_TRANSLATIONS[lang][key] || UI_TRANSLATIONS.en[key];
+    }
+
+    function applyUITranslations() {
+        document.getElementById('game-title').textContent = getUIText('title');
+        document.getElementById('instructions-text').innerHTML = getUIText('instructions');
+        document.getElementById('name-label').textContent = getUIText('yourName');
+        document.getElementById('player-name').placeholder = getUIText('enterName');
+        document.getElementById('language-label').textContent = getUIText('language');
+        document.getElementById('start-btn').textContent = getUIText('start');
+        document.getElementById('stats-btn').textContent = getUIText('statistics');
+        document.getElementById('label-voice-mode').textContent = getUIText('voiceMode');
+        document.getElementById('audio-warning').textContent = getUIText('voiceWarning');
+        document.getElementById('label-show-labels').textContent = getUIText('showLabels');
+        document.getElementById('label-shuffle-buttons').textContent = getUIText('shuffleButtons');
+        document.getElementById('label-shuffle-every').textContent = getUIText('shuffleEvery');
+        document.getElementById('label-no-fill').textContent = getUIText('noFill');
+        document.getElementById('label-colours').innerHTML = getUIText('colours') + ': <span id="colour-count-label">' + colourCount + '</span>';
+        document.getElementById('label-time').innerHTML = getUIText('time') + ': <span id="time-limit-label">' + customTimeLimit + '</span>s';
+        document.getElementById('label-min-time').innerHTML = getUIText('minTime') + ': <span id="min-time-label">' + customMinTime + '</span>s';
+        document.getElementById('prompt-label').textContent = getUIText('prompt');
+        document.getElementById('speech-prompt').textContent = getUIText('sayColour');
+        document.getElementById('game-over-text').textContent = getUIText('gameOver');
+        document.getElementById('streak-label').textContent = getUIText('streak');
+        document.getElementById('avg-label').textContent = getUIText('avgResponse');
+        document.getElementById('restart-btn').textContent = getUIText('playAgain');
+
+        // Progress display
+        document.getElementById('progress-title').textContent = getUIText('yourProgress');
+        document.getElementById('progress-best-label').textContent = getUIText('bestStreak');
+        document.getElementById('progress-games-label').textContent = getUIText('games');
+        document.getElementById('progress-correct-label').textContent = getUIText('correct');
+
+        // Statistics screen
+        document.getElementById('stats-title').textContent = getUIText('statistics');
+        document.getElementById('stats-total-label').textContent = getUIText('totalCorrect');
+        document.getElementById('stats-games-label').textContent = getUIText('gamesPlayed');
+        document.getElementById('stats-best-label').textContent = getUIText('bestStreak');
+        document.getElementById('stats-avg-label').textContent = getUIText('avgResponseTime');
+        document.getElementById('difficulty-stats-title').textContent = getUIText('bestByDifficulty');
+        document.getElementById('language-stats-title').textContent = getUIText('byLanguage');
+        document.getElementById('close-stats-btn').textContent = getUIText('close');
+        document.getElementById('reset-stats-btn').textContent = getUIText('resetStats');
+
+        // Difficulty buttons
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            const key = btn.dataset.difficulty;
+            btn.textContent = getUIText(key);
+        });
+
+        if (selectedDifficulty !== 'custom') {
+            difficultyInfo.textContent = getUIText(selectedDifficulty + 'Info');
+        } else {
+            difficultyInfo.textContent = getUIText('customInfo');
+        }
+    }
+
+    function initLanguageSelection() {
+        languageBtns.forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.lang === selectedLanguage);
+        });
+        applyUITranslations();
+    }
+
+    function getTranslatedColour(color) {
+        return TRANSLATIONS[selectedLanguage][color] || TRANSLATIONS.en[color];
+    }
+
+    function getSpeechLangCode() {
+        return SPEECH_LANG_CODES[selectedLanguage] || 'en-GB';
+    }
+
     function show(screen) {
-        [startScreen, gameScreen, endScreen].forEach(s => s.classList.remove('active'));
+        [startScreen, gameScreen, endScreen, statsScreen].forEach(s => s.classList.remove('active'));
         screen.classList.add('active');
     }
+
+    // ========== GAME FUNCTIONS ==========
 
     function startGame() {
         wordIndex = 0;
@@ -1391,20 +2055,27 @@
             noColourFill = preset.noColourFill;
             timeLimit = preset.initialTime;
             minTimeLimit = preset.minTime;
-            colourCount = 5; // Default for presets
+            colourCount = 5;
         }
 
-        // Set active colours and regenerate buttons
         activeColors = ALL_COLORS.slice(0, colourCount);
         generateButtons();
 
-        // Hide buttons in voice mode
-        buttonsContainer.style.display = voiceModeEnabled ? 'none' : 'grid';
-
-        // Initialize and start speech recognition if voice mode enabled
-        if (voiceModeEnabled && speechSupported) {
-            recognition = initSpeechRecognition();
-            startListening();
+        // Voice mode UI setup
+        if (voiceModeEnabled) {
+            buttonsContainer.style.display = 'none';
+            promptLabel.style.display = 'none';
+            speechWarning.classList.remove('visible');
+            if (speechSupported) {
+                recognition = initSpeechRecognition();
+                startListening();
+            } else {
+                showSpeechFallback();
+            }
+        } else {
+            buttonsContainer.style.display = 'grid';
+            promptLabel.style.display = 'block';
+            speechUI.classList.remove('active');
         }
 
         show(gameScreen);
@@ -1441,7 +2112,6 @@
         timerBar.style.transition = 'none';
         timerBar.style.width = '100%';
         timerBar.classList.remove('warning');
-        // force reflow
         void timerBar.offsetWidth;
         timerBar.style.transition = `width ${timeLimit}ms linear, background 0.3s linear`;
         timerBar.style.width = '0%';
@@ -1463,6 +2133,11 @@
         if (!gameScreen.classList.contains('active')) return;
         if (pauseOverlay.classList.contains('active')) return;
 
+        // Clear button focus
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
+
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
 
@@ -1470,9 +2145,8 @@
             responseTimes.push(performance.now() - timerStart);
             streak++;
             if (shuffleEveryAnswer) shuffleButtonOrder();
-            // Always check at multiples of 10 for level up, time reduction, or win condition
             if (streak > 0 && streak % 10 === 0) {
-                showPause();
+                showMilestone();
             } else {
                 nextRound();
             }
@@ -1481,13 +2155,13 @@
         }
     }
 
-    function showPause() {
-        // Pause voice recognition during countdown
+    function showMilestone() {
+        // Pause voice recognition during milestone
         if (voiceModeEnabled) {
             stopListening();
         }
 
-        // Check for win condition: at absolute minimum (0.2s) and completed 10 more
+        // Check for win condition
         if (timeLimit <= ABSOLUTE_MIN_TIME) {
             winGame();
             return;
@@ -1496,16 +2170,11 @@
         // Calculate new time limit
         let newLimit;
         if (!inFractionalPhase && timeLimit > minTimeLimit) {
-            // Normal phase: reduce by 1 second
             newLimit = Math.max(timeLimit - 1000, minTimeLimit);
-            if (newLimit <= minTimeLimit) {
-                // Entering fractional phase next time if we can still reduce
-                if (minTimeLimit > ABSOLUTE_MIN_TIME) {
-                    inFractionalPhase = true;
-                }
+            if (newLimit <= minTimeLimit && minTimeLimit > ABSOLUTE_MIN_TIME) {
+                inFractionalPhase = true;
             }
         } else if (timeLimit > ABSOLUTE_MIN_TIME) {
-            // Fractional phase: reduce by 0.2 seconds (200ms)
             inFractionalPhase = true;
             newLimit = Math.max(timeLimit - 200, ABSOLUTE_MIN_TIME);
         } else {
@@ -1515,27 +2184,41 @@
         const newSeconds = newLimit / 1000;
         const canReduceTime = newLimit < timeLimit;
 
-        let msg = `${getUIText('niceWork')} ${streak} ${getUIText('inARow')}`;
+        // Set milestone overlay content with animation
+        milestoneTitle.textContent = getUIText('milestone');
+        milestoneTitle.style.animation = 'none';
+        void milestoneTitle.offsetWidth;
+        milestoneTitle.style.animation = 'milestonePulse 0.5s ease-out';
+
+        milestoneMessage.textContent = `${getUIText('niceWork')} ${streak} ${getUIText('inARow')}`;
+
+        if (shuffleEnabled) {
+            milestoneDetail.textContent = getUIText('buttonsShuffled');
+        } else {
+            milestoneDetail.textContent = '';
+        }
+
         if (canReduceTime) {
             if (newLimit === ABSOLUTE_MIN_TIME) {
-                msg += ` ${getUIText('finalChallenge')}`;
+                milestoneTimeChange.textContent = getUIText('finalChallenge');
             } else {
                 const secWord = newSeconds !== 1 ? getUIText('seconds') : getUIText('second');
-                msg += ` ${getUIText('timeNow')} ${newSeconds} ${secWord}.`;
+                milestoneTimeChange.textContent = `${getUIText('timeNow')} ${newSeconds} ${secWord}`;
             }
+        } else {
+            milestoneTimeChange.textContent = '';
         }
-        if (shuffleEnabled) {
-            msg += ' ' + getUIText('buttonsShuffled');
-        }
-        pauseMessage.textContent = msg;
-        pauseCountdown.textContent = '5';
+
         pauseOverlay.classList.add('active');
 
-        let remaining = 5;
+        // Countdown
+        let remaining = 3;
+        milestoneCountdown.textContent = remaining;
+
         clearInterval(pauseCountdownInterval);
         pauseCountdownInterval = setInterval(() => {
             remaining--;
-            pauseCountdown.textContent = remaining;
+            milestoneCountdown.textContent = remaining;
             if (remaining <= 0) {
                 clearInterval(pauseCountdownInterval);
                 pauseOverlay.classList.remove('active');
@@ -1560,7 +2243,8 @@
         btns.forEach(btn => buttonsContainer.appendChild(btn));
     }
 
-    // Leaderboard functions
+    // ========== LEADERBOARD FUNCTIONS ==========
+
     function loadLeaderboardData() {
         try {
             const data = localStorage.getItem('waffleLeaderboard');
@@ -1600,7 +2284,6 @@
         const titleEl = document.getElementById('personal-best-title');
         const valueEl = document.getElementById('personal-best-value');
 
-        // If no player name, hide the display
         if (!playerName.trim()) {
             displayEl.classList.add('hidden');
             return;
@@ -1612,7 +2295,6 @@
         displayEl.classList.remove('hidden', 'new-record', 'goal');
 
         if (isNewRecord) {
-            // New personal best!
             displayEl.classList.add('new-record');
             titleEl.textContent = getUIText('newPersonalBest');
             if (previousBest) {
@@ -1620,45 +2302,34 @@
             } else {
                 valueEl.textContent = '';
             }
-            // Save the new record
             savePersonalBest(playerName, selectedDifficulty, currentScore, avgTime);
         } else {
-            // Show goal to beat
             displayEl.classList.add('goal');
             titleEl.textContent = `${getUIText('yourGoal')}: ${previousBest.score}`;
             valueEl.textContent = `${getUIText('previousBest')}: ${previousBest.score} (${previousBest.avgTime}s avg)`;
         }
     }
 
-    // Initialize leaderboard data
-    loadLeaderboardData();
-
-    // Initialize player name input
-    const playerNameInput = document.getElementById('player-name');
-    playerNameInput.value = playerName;
-    playerNameInput.addEventListener('input', () => {
-        playerName = playerNameInput.value.trim();
-        localStorage.setItem('wafflePlayerName', playerName);
-    });
-
     function endGame(reason) {
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
 
-        // Stop voice recognition
         if (voiceModeEnabled) {
             stopListening();
         }
 
-        document.getElementById('game-over-text').textContent = getUIText('gameOver');
-        endMessage.textContent = reason;
-        finalScore.textContent = streak;
         const avg = responseTimes.length > 0
             ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
             : '0.0';
+
+        // Update statistics
+        updateStatsAfterGame(streak, avg, selectedLanguage, selectedDifficulty);
+
+        document.getElementById('game-over-text').textContent = getUIText('gameOver');
+        endMessage.textContent = reason;
+        finalScore.textContent = streak;
         document.getElementById('avg-response').textContent = avg + ' s';
 
-        // Check and display personal best
         checkAndDisplayPersonalBest(streak, avg);
 
         show(endScreen);
@@ -1668,25 +2339,40 @@
         clearTimeout(timeout);
         cancelAnimationFrame(timerRAF);
 
-        // Stop voice recognition
         if (voiceModeEnabled) {
             stopListening();
         }
 
-        // Show win screen (reuse end screen with different messaging)
-        document.getElementById('game-over-text').textContent = getUIText('youWin');
-        endMessage.textContent = getUIText('winMessage');
-        finalScore.textContent = streak;
         const avg = responseTimes.length > 0
             ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000).toFixed(1)
             : '0.0';
+
+        // Update statistics
+        updateStatsAfterGame(streak, avg, selectedLanguage, selectedDifficulty);
+
+        document.getElementById('game-over-text').textContent = getUIText('youWin');
+        endMessage.textContent = getUIText('winMessage');
+        finalScore.textContent = streak;
         document.getElementById('avg-response').textContent = avg + ' s';
 
-        // Check and display personal best
         checkAndDisplayPersonalBest(streak, avg);
 
         show(endScreen);
     }
+
+    // ========== INITIALIZATION ==========
+
+    loadLeaderboardData();
+
+    const playerNameInput = document.getElementById('player-name');
+    playerNameInput.value = playerName;
+    playerNameInput.addEventListener('input', () => {
+        playerName = playerNameInput.value.trim();
+        localStorage.setItem('wafflePlayerName', playerName);
+    });
+
+    initLanguageSelection();
+    updateProgressDisplay();
 </script>
 
 </body>
